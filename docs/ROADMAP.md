@@ -1,59 +1,66 @@
 # ATHANOR — roadmap
 
-## 001: Operational cornerstone (this release)
+## 001: Operational cornerstone — implemented
 
-Define and review the substrate, then implement typed structural knowledge, exact
-procedures, recursive composition, teaching, atomic validation, provenance, and
-restore. Exit evidence: passing contract/failure tests and a real local end-to-end
-demonstration. This milestone is a dependency, not a benchmark claim.
+Typed structural knowledge, exact procedures, recursive composition, structured
+teaching, atomic validation, provenance, and restore are operational. The original
+61 correctness tests remain the foundation's invariants. Definitions and executable
+knowledge are addressable structural participants. This does not prove the architecture's
+general-intelligence hypothesis or establish external truth.
 
-## 002: Grounded teaching and domain interfaces
+## 002: First neural observer — implemented
 
-Specify observation/evidence receipts and how external distinctions map to local
-references. Add at least two domain adapters using existing operations. Teach units,
-applicability, corrections, and reusable procedures. Evaluate actual transfer to
-unseen compositions. Keep teacher claims, observations, and action effects separate.
-Resolve definition versioning/import/unification before broad knowledge ingestion.
+Shared structural encoding, sparse learned associations, a reused recurrent process,
+operation/argument pointers, learned abstention, persistent activation, operational
+self-map, separate comparison channels, supervised optimization and checkpoints.
+New installed structures/procedures use the same parameters. Exact execution remains
+in Goal 001. Evidence is bounded held-out proposal learning, real kernel feedback,
+explicit preference correction, post-training teaching, and resumed computation/training.
+See NEURAL_OBSERVER and VALIDATION for results and remaining binding errors.
 
-## 003: Adaptive activation model
+## 003: Grounded observations and broader structural competence
 
-Choose a trainable encoding for structural graphs, interfaces, procedure bodies,
-and evidence. Start with bounded selection/interpretation tasks over installed
-knowledge. Return exact references and proposals to the existing kernel, which owns
-validation/execution. Measure useful activated computations, error recovery, reuse,
-and total storage/execution/training cost. Do not substitute a frontier model for
-this component or infer the design from arbitrary transformer parameter ceilings.
+Specify external observation/effect receipts and mappings to local references. Add
+domain adapters without embedding task selectors inside them. Extend curriculum beyond
+direct intention claims: inherited relationships, competing/contradictory evidence,
+longer compositions, changing observations, temporal context and procedure sequences.
+Evaluate actual proposal transfer and unknown-information handling. Resolve definition
+versioning/import/unification before broad knowledge ingestion. Keep teacher claims,
+observations, execution success and external effects separate.
 
-## 004: Continual learning and capability calibration
+## 004: Continual learning and calibrated capabilities
 
-Connect instructions, demonstrations, observations, consequences, and feedback to
-updates of learned activation/interpretation. Define separately versioned neural
-state and knowledge state. Test retention, interference, conflicting evidence,
-calibration, and correction. Add durable transactional storage/indexes/retention
-only against measured workloads, preserving reference and receipt contracts.
+Define controlled updates from instruction, demonstration, observation and consequence.
+Test retention, interference, conflict, calibrated uncertainty, safe abstention and
+cross-task self-history. The existing checkpoint/optimizer can continue supervised
+training, but it does not establish unrestricted continual learning. Extend measured
+capabilities from kernel acceptance to externally observed outcomes. Preserve shared
+world/self processing; separate evaluative signals and explicit update policies.
 
-## 005: Dynamic self-map
+## 005: Scalable activation and knowledge retention
 
-Represent available interfaces, operational history, reliability, active internal
-patterns, resource budgets, and their uncertainty. Learn a dynamic self-map from
-measured capability and consequences; stored labels about the system are insufficient.
-Distinguish a successful computation from a successful external action.
+Measure total encoding, inference, training and knowledge storage costs. Add graph
+indexes, learned sparse activation budgets with explicit exclusion semantics, durable
+transactional storage, and dependency-aware history retention against measured workloads.
+Avoid silent revision drift or deleting provenance dependencies. Improve representation
+fidelity beyond compressed hash features where evidence warrants it. Runtime limits
+remain separate from model-size hypotheses.
 
 ## 006: Controlled process refinement
 
-Generate new procedure/representation proposals as structural data. Validate them
-against explicit contracts and held-out capability/retention checks. Review deliberate
-native-kernel changes separately. Provide rollback and versioned adoption. Reflection
-in Goal 001 makes proposals addressable but does not establish this capability.
+Represent procedure/representation proposals as structural data. Validate adoption
+against held-out execution, retention and resource contracts, with rollback and
+versioned usage. Review changes to the trusted native validator/interpreter separately.
+The cornerstone makes operations reflectable; the neural observer can select them.
+Neither milestone implements autonomous architecture rewriting.
 
 ## 007: Digital-universe integration
 
-Connect deterministic simulations and external environments through queued explicit
-actions, observations, and effect receipts. Preserve environment/kernel boundaries,
-headless operation, reproducible replay, and resource accounting. Evaluate agency,
-transfer, recovery, and persistent learning only when those interfaces exist.
+Connect deterministic simulations and external environments through explicit queued
+actions, observations and effect receipts. Preserve environment/kernel boundaries,
+headless operation, reproducible replay and resource accounting. Evaluate agency,
+transfer, recovery and persistent learning after those interfaces exist.
 
-Each milestone needs a precise contract and working behavior before its successors
-are described as implemented. Chatbots, large ingestion pipelines, architecture
-search, elaborate visual interfaces, and comparative benchmark campaigns remain
-outside Goal 001.
+Each milestone needs contracts and working evidence before being called implemented.
+Natural-language/chat interfaces, large ingestion pipelines, autonomous architecture
+search, elaborate visuals and comparative benchmark campaigns remain outside Goal 002.

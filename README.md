@@ -13,15 +13,20 @@ by which something develops, rather than presuming the finished intelligence.
 Goal 001 supplies a working local computational cornerstone: immutable versioned
 structures, typed relationship claims, inherited schemas, structured teaching,
 reusable exact procedures, recursive composition/execution, production receipts,
-and persistence. This release contains no neural model or external AI dependency.
+and persistence. Goal 002 integrates a trainable recurrent neural observer: shared
+structural encoding, learned operation/argument pointers, persistent activation,
+measured self-observations, supervised training, and resumable checkpoints. Inference
+uses local learned parameters and exact installed procedures. No external AI is in
+the execution path.
 
 ## Install and run (Python 3.14)
 
 From `E:\ATHANOR` in PowerShell, with Python 3.14 installed:
 
 ```powershell
-uv sync --locked --extra dev --python 3.14 --cache-dir .tools\uv-cache
+uv sync --locked --extra dev --extra neural --python 3.14 --cache-dir .tools\uv-cache
 .venv\Scripts\athanor-demo.exe --save artifacts\cornerstone.json
+.venv\Scripts\athanor-neural-demo.exe --save artifacts\neural-observer.athanor
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\ruff.exe check .
 .venv\Scripts\ruff.exe format --check .
@@ -30,10 +35,39 @@ uv build --cache-dir .tools\uv-cache
 ```
 
 Alternatively, use `py -3.14 -m venv .venv` and
-`.venv\Scripts\python.exe -m pip install -e ".[dev]"`. Runtime installation can omit
-`[dev]`; the foundation itself has **zero third-party runtime dependencies**.
+`.venv\Scripts\python.exe -m pip install -e ".[dev,neural]"`. Runtime installation can omit
+`[dev]`; the foundation itself has **zero third-party runtime dependencies**. PyTorch
+is an optional `[neural]` dependency; importing `athanor` does not import it.
 `python -m athanor.demo` is also supported. The demo creates the requested save
 directory; the core `save()` API requires an existing parent directory.
+
+The neural demo trains from scratch on CPU using 256 structured lessons for 40 epochs
+(about 95 seconds on the exercised development machine). It checks held-out learning,
+actual execution, self-feedback correction, new teaching after training, and exact
+checkpoint continuation. It saves knowledge, weights, runtime activations, self-map,
+optimizer, and an adjacent JSON report. `python -m athanor.neural.demo` also works.
+
+Continue training an existing checkpoint:
+
+```powershell
+.venv\Scripts\athanor-neural-demo.exe --resume artifacts\neural-observer.athanor --epochs 5 --save artifacts\continued.athanor
+```
+
+Inference from a checkpoint is local and does not require the curriculum or teacher:
+
+```python
+from athanor.neural import Observer
+
+observer, trainer = Observer.restore("artifacts/neural-observer.athanor")
+decision = observer.think()  # Refine the restored observation without a new input.
+print(decision.proposal, decision.expectation)
+# observer.act() executes that proposal and records its measured feedback.
+```
+
+For a new request, create ordinary cornerstone data containing its structured context
+and call `observer.observe(Observation(request_ref, offered_argument_refs))`. The
+adapter supplies context and candidates; learned pointers select the operation and
+ordered arguments. The exact kernel validates them. See the neural API for contracts.
 
 ## What the demonstration establishes
 
@@ -91,19 +125,26 @@ import/unification between lineages needs a future explicit protocol.
 - [Decisions, alternatives and unresolved issues](docs/DECISIONS.md)
 - [Roadmap to the neural model and environments](docs/ROADMAP.md)
 - [Public API and expression reference](docs/API.md)
+- [Neural integration design and critical review](docs/NEURAL_OBSERVER.md)
+- [Training, inference, feedback and checkpoint API](docs/NEURAL_API.md)
 - [Verification evidence and requirement coverage](docs/VALIDATION.md)
 
 `values` and `contracts` define representation; `store` enforces invariants;
 `programs` evaluates taught procedure data; `kernel` exposes the small public API;
 `persistence` saves validated snapshots; `demo` exercises the foundation. Tests live
-outside the installable package.
+outside the installable package. The optional `neural` package contains the shared
+encoder/model, observer boundary, curriculum/trainer, checkpoint format, and learning demo.
 
 ## Limits that matter
 
-This is an operational cornerstone, not a trained intelligence. It implements exact
-structural execution and conservative evidence handling. It does not implement
-natural-language teaching, perception, neural activation, grounded semantics,
-probabilistic reasoning, autonomous learning, or self-improvement.
+The neural observer has learned bounded structural competence. In the verified run,
+exact proposal accuracy improved from 0% to 95.31% on 128 held-out situations; operation
+selection and insufficiency abstention reached 100%. Six proposals still bound an
+argument incorrectly. A separate 48-case new-definition set reached 100% exact
+proposals. These are curriculum results, not evidence of open-domain intelligence.
+Natural-language teaching, perception, grounded semantics, calibrated open-world
+uncertainty, unrestricted continual learning, and autonomous self-improvement remain
+unimplemented. Preference correction is explicit structured instruction.
 
 Schemas and definitions are immutable; revised definitions get new identities.
 Inheritance rejects conflicting field contracts rather than implementing override
@@ -113,4 +154,4 @@ Histories grow and transactions copy indexes; larger workloads need measured ind
 retention, and storage work. Snapshot digests detect corruption and are not signatures.
 Historical receipt validation does not authenticate teachers or independently prove
 that an imported computation occurred. See the architecture and decisions for the
-neural interfaces and open contracts that must be addressed next.
+implemented neural interfaces and open contracts that must be addressed next.

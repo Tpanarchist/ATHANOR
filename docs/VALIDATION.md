@@ -1,10 +1,80 @@
-# ATHANOR Goal 001 — verified implementation
+# ATHANOR Goals 001 and 002 — verified implementation
 
 Date: 2026-10-10. Platform exercised: Windows, CPython 3.14.6.
 Development tools exercised: uv 0.11.28, Ruff 0.17.0, mypy 2.4.0.
 The development dependency resolution is recorded in `uv.lock`.
 
-## Verification evidence
+## Goal 002 learning and integration evidence
+
+The neural implementation uses PyTorch 2.14.1 on the exercised CPU path with Python
+3.14.6. The kernel implementation and its original 61 tests are preserved; its only
+source change is the package version. The neural dependency is optional. A separate
+base-wheel environment has no PyTorch and imports/runs the cornerstone independently.
+
+The default runnable learning demonstration trains from scratch on 256 structurally
+taught lessons for 40 epochs (640 optimizer updates), using width 64 and four recurrent
+refinement steps. Actual parameter change has L2 norm 17.5171. The final separate
+training losses are selection 0.0000811, arguments 0.0029533, applicability 0.0001302,
+capability 0.0268479, preference 0.0112084 and structural prediction 0.0001241.
+These losses do not substitute for execution/proposal evidence.
+
+| Held-out measurement | Before training | After training |
+| --- | --- | --- |
+| Correct operation, including abstention (128 cases) | 17/128 (13.28%) | 128/128 (100%) |
+| Exactly correct operation and ordered arguments, including abstention | 0/128 | 122/128 (95.31%) |
+| Abstention for unsupported/missing/incompatible input (48 cases) | 0/48 | 48/48 |
+| Exactly correct proposals among actionable requests (80 cases) | 0/80 | 74/80 (92.5%) |
+| Expected exact numeric result among actionable requests | 1/80 | 75/80 (93.75%) |
+| Separate new-definition set (48 cases, including multiplication) | Not a pretraining target | 48/48 exact proposals/results |
+
+Six held-out proposals still bind an argument incorrectly. One nevertheless produces
+the expected value under a commutative procedure, which is why numeric correctness is
+not treated as proof of correct binding. Evaluation changes values, namespaces,
+allocation order, candidate order, specializations and nested compositions. It is a
+bounded structural curriculum, not a comparative benchmark or open-domain claim.
+
+The end-to-end runtime episode begins with a learned proposal. The execution succeeds
+but changed preference is explicitly unsatisfied. Recorded corrective feedback changes
+the next neural proposal; exact execution yields -15/2. Clearing the active self-map
+and carried field restores the original instruction's choice. Multiplication taught
+after training is selected/bound by the same model, produces -14, and adds zero neural
+parameters. Further internal steps change activation without a new external input.
+
+Combined checkpoint restoration preserves knowledge bytes, field/context tensors,
+the pending decision and the next recurrent computation. Continued optimization changes
+restored weights. The separate optimizer/shuffle test checks bitwise equality of the
+next updates after restoring AdamW and the local shuffle RNG.
+
+Generated evidence is `artifacts/neural-observer.report.json`, the trained checkpoint
+`artifacts/neural-observer.athanor` and its `-continued.athanor` continuation. The reported
+complete run took approximately 95 seconds on the development machine. Generated files
+are local artifacts, not installed fixtures.
+
+Final verification of version 0.2.0:
+
+- **82 tests passed**, including the original 61 cornerstone tests, 20 focused neural
+  contracts and one complete learning acceptance test (101.2 seconds).
+- Ruff lint/format checks and strict mypy passed for all 18 package source modules.
+- Locked `[dev,neural]` installation succeeded offline from the resolved cache.
+- Built `athanor-0.2.0-py3-none-any.whl` and `athanor-0.2.0.tar.gz`; the source archive
+  includes neural documentation/tests and excludes caches/generated artifacts.
+- In a separate base-wheel environment, the 61 cornerstone tests passed with all 21
+  neural tests explicitly skipped; `import athanor` did not import PyTorch. The original
+  end-to-end cornerstone demonstration also passed from the wheel.
+- In a separate wheel environment with the neural extra, all 20 neural contract tests
+  passed. Its isolated CLI restored the trained checkpoint and completed two further
+  optimizer updates, saving `artifacts/wheel-resumed.athanor` at update 642.
+
+Neural contract coverage includes identity/display-name exclusion, candidate permutation,
+new inventory without new parameters, actual optimizer updates, repeated internal steps,
+rejection rollback, unknown versus unsatisfied preference, abstention versus failure,
+dynamic self-capability observations, exact checkpoint/optimizer continuation, stale graph
+save rejection and corrupted/unknown/nonfinite checkpoint input. One automated acceptance
+test trains and executes the complete demonstration. See NEURAL_OBSERVER for the precise
+architectural limits; no calibration, general grounding, CUDA performance or unrestricted
+continual-learning result is inferred from these checks.
+
+## Original Goal 001 verification evidence (0.1.0)
 
 - Locked development installation: `uv sync --locked --extra dev --python 3.14
   --offline --cache-dir .tools\uv-cache` completed successfully using downloaded cache.
@@ -20,7 +90,7 @@ The development dependency resolution is recorded in `uv.lock`.
   successfully saving, restoring, executing restored knowledge, teaching another
   procedure, and restoring that new teaching again.
 
-No comparative performance, neural-learning, Linux/macOS portability, grounded
+Those original checks claimed no comparative performance, neural-learning, Linux/macOS portability, grounded
 intelligence, or adversarial resource-isolation result is claimed by these checks.
 
 ## Demonstration results
@@ -89,13 +159,14 @@ truth. Resource limits do not bound large arithmetic operands or hostile snapsho
 From `E:\ATHANOR`:
 
 ```powershell
-uv sync --locked --extra dev --python 3.14 --cache-dir .tools\uv-cache
+uv sync --locked --extra dev --extra neural --python 3.14 --cache-dir .tools\uv-cache
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\ruff.exe check .
 .venv\Scripts\ruff.exe format --check .
 .venv\Scripts\mypy.exe
 uv build --cache-dir .tools\uv-cache
 .venv\Scripts\athanor-demo.exe --save artifacts\cornerstone.json
+.venv\Scripts\athanor-neural-demo.exe --save artifacts\neural-observer.athanor
 ```
 
 For an independent distribution check, create a second Python 3.14 environment,

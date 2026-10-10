@@ -67,12 +67,60 @@ teach new definitions to extend behavior. Only data state can be revised in plac
 separate nonstructural operation registry (blocks first-class participation).
 **Consequences:** safe operational reflection; no claim of autonomous self-improvement.
 
-## Unresolved before the neural model
+## ADR-007: optional shared recurrent neural observer
+
+**Context:** installed structures need a real trainable activation/selection process.
+**Decision:** optional PyTorch dependency; one feature encoder, sparse learned graph
+messages, one GRU cell reused for field/context/decoder, variable candidate pointers.
+Small readouts predict applicability, capability, preference and structural outcomes.
+**Alternatives:** external teacher inference (violates local intelligence); symbolic
+rule selection with decorative neural scores; fixed symbol embeddings/output heads;
+separate world/self networks; mandatory full transformer. None is required here.
+**Consequences:** actual learned use of newly taught nodes/operations with fixed
+parameters. Hash collisions, bounded depth, graph closure costs and imperfect argument
+binding remain limitations. Computational expressiveness does not prove efficient learning.
+
+## ADR-008: preserve exact execution and qualified feedback
+
+**Decision:** public-only cornerstone boundary, exact reference pointers, all installed
+operations/offered inputs as neural candidates, no applicability repair/prefilter.
+Kernel rejection remains atomic. Actual result/receipt/error returns to the observer.
+Predictive, preference and capability discrepancies remain separate. Numeric output
+values are never neural prediction targets. Correction is explicit teacher instruction.
+**Consequences:** successful execution can still violate preference. Abstention is
+learned and distinct from rejection. Confidence is uncalibrated; it cannot assert truth
+or suppress contradictory cornerstone evidence.
+
+## ADR-009: dynamic shared self-representation and recurrent training
+
+**Decision:** an ordinary observer structure plus measured self-observations, active
+field/context and activation history, all passed through the same graph process.
+Train fresh and carried-field episodes. Direct query-edge descriptors also enter
+pointer candidates to preserve positional context through repeated aggregation.
+**Alternatives:** static biography; handwritten self reliability penalty; corrective
+operation override; training only fresh states and assuming recurrent competence.
+**Consequences:** demonstrated feedback-driven correction and internal processing
+without new input. The initial failure of carried-state inference and loss of second
+argument order required explicit recurrent curriculum and preserved relational context.
+Broader task retention/interference and calibration remain unresolved.
+
+## ADR-010: separate stores, combined resumable checkpoint
+
+**Decision:** cornerstone knowledge, learned weights and temporary activations have
+separate contracts. An atomic versioned checkpoint bundles those plus optional AdamW
+state and local shuffle RNG. Restricted tensor loading, finite/shape/reference checks
+and knowledge validation precede use. PyTorch remains optional for the foundation.
+**Consequences:** same next decision/tensors and optimizer continuation on the exercised
+CPU path. No executable Python callbacks/source/model classes are persisted. No
+cross-version/hardware bitwise portability or checkpoint authenticity claim.
+
+## Unresolved after the first neural model
 
 - Grounding contracts: what observation supports which distinction/reference, and
   how contradictory observations affect interpretation without erasing provenance.
-- Neural encoding of graphs, revisions, interfaces, programs, and dynamic activation;
-  selection of computational paths and budgeting of executed intermediate structures.
+- Broader structural encoding and planning depth; learned attention/active graph budgets
+  that remain explicit about excluded knowledge. Current encoding/selection is operational
+  for the bounded curriculum, not established across all cornerstone semantics.
 - Richer constraint refinement, generic polymorphism, units, dependent interfaces,
   exceptions to inheritance, and calibrated evidence aggregation.
 - Explicit cross-store identity/unification and schema migration protocols.
@@ -81,5 +129,5 @@ separate nonstructural operation registry (blocks first-class participation).
 - Evaluation of actual acquisition, transfer, correction, and capability calibration;
   these must precede claims of efficient learning or useful recursive intelligence.
 
-These questions do not prevent an operational cornerstone. They prevent treating
-Goal 001 as a complete neural architecture or grounded intelligence.
+These questions do not prevent the operational cornerstone and first neural observer.
+They prevent treating this bounded supervised competence as grounded general intelligence.

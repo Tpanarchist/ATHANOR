@@ -119,3 +119,8 @@ directory fsync/power-loss guarantees, migrations, merge, and garbage collection
 outside this version. File I/O failure raises `PersistenceError`; invalid structural
 input raises `ValidationError`; unavailable evaluation raises `ExecutionError`; budget
 exhaustion raises `ResourceLimitError`. No rejected invocation changes the store.
+## Optional neural observer
+
+Goal 002 adds `athanor.neural` without changing the APIs above. See
+[NEURAL_API.md](NEURAL_API.md) for observations, learned proposals, feedback,
+dynamic self-map, supervised training, and combined checkpoint continuation.
