@@ -146,6 +146,14 @@ Bitwise equality is not promised across hardware, PyTorch versions or accelerati
 backends. CUDA portability/performance was not validated in Goal 002. The base package
 can restore `knowledge.json` independently via `Athanor.loads` without PyTorch.
 
+Goal 004 adds an optional `sensory` sequence to the same model's forward call and
+an optional compact `Frame.intent_features` view. Existing calls/parameters and the
+no-sensory path retain their contracts. `PixelObserver` injects learned RGB/proprioceptive
+activation before the same relational refinement and operation pointers. Physical
+prediction is an additional readout of that shared state. Its complete outer checkpoint
+is distinct from the native/Goal 002/003 formats above. See GROUNDED_OBSERVER and
+GROUNDED_API for territory isolation, training, uncertainty and live operation.
+
 ```powershell
 .venv\Scripts\athanor-neural-demo.exe --save artifacts\neural-observer.athanor
 .venv\Scripts\athanor-neural-demo.exe --resume artifacts\neural-observer.athanor --epochs 5 --save artifacts\continued.athanor

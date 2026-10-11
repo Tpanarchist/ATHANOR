@@ -1,7 +1,7 @@
 # ATHANOR — decisions and unresolved questions
 
-Date: 2026-10-10. Decider: implementation workstream under Goal 001 authorization.
-Status: Accepted for Goal 001; revisitable without implying scientific validation.
+Date: 2026-10-10. Decider: implementation workstream under Goals 001–004 authorization.
+Status: Implemented contracts; revisitable without implying scientific validation.
 
 ## ADR-001: versioned local structural envelope
 
@@ -157,10 +157,78 @@ Examples validate implementations against supplied checks, not universal proofs.
 Observation provenance is attribution and scope, not authentication. Explicit support
 records connect claims and witnesses. Original neural checkpoints remain restorable.
 
-## Unresolved after Goal 003
+## ADR-014: separate native territory, restricted interface and acquired map
 
-- Broader sensory/effect grounding and externally authenticated observation sources;
+**Decision:** an independent authoritative Athanor store holds bounded 3D rigid
+geometry, a spherical body, time and causal receipts. RGB stereo/proprioception is
+the only inference port. The outside viewer and privileged training labels remain
+separate authority paths. Learned map identities never copy territory references.
+**Alternatives:** object-ID/coordinate observations, a full game engine, or using
+the observer's beliefs as world authority. These fail the intended interface boundary
+or add unnecessary scope. **Consequences:** actual pixels, occlusion, deterministic
+native revision history, inspectable physics approximations and explicit hypotheses.
+See GROUNDED_OBSERVER for the design and critical review recorded before implementation.
+
+## ADR-015: sensory computation supplements the same recurrent intelligence
+
+**Decision:** one shared CNN learns foreground/continuous appearance; shared neural
+fusion combines pixels/proprioception with a compact native intention view through
+the existing structural encoder. The same messages/GRU/operation pointers refine
+and select. A conditioned readout of that field predicts physical consequences.
+Exact connected components, descriptor association and stereo geometry operate on
+learned measurements, preserving ambiguity. Distinct learned appearances separate
+touching surfaces instead of blending object and occluder into one false identity.
+**Alternatives:** a second world/self reasoner, one classifier per taught symbol,
+end-to-end approximation of exact physics, or raw receipt-heavy query hashing alone.
+**Consequences:** new taught names/instances allocate no parameters. Current query
+evidence remains available alongside recurrent refinement on the sensory path.
+No-sensory computation and original parameter names remain unchanged. Appearance
+and identity are limited; learned descriptors plus exact association are not a learned
+universal identity or object-permanence theory.
+
+## ADR-016: consequential evidence, explicit updates and retention
+
+**Decision:** validate native commands, then measure the actual physical outcome.
+Keep prediction, preference and capability channels distinct; retain world/self/interface
+alternatives when evidence is insufficient. Empirical action summaries are reusable
+native knowledge, qualified by experience. Supervised perception/action learning,
+current-parameter carried context, exact execution labels and measured feedback updates
+share the existing model. Structural/semantic replay limits cross-domain interference.
+**Alternatives:** treating a valid command as physical success, hidden scene solutions,
+hand-authored reward as truth, or assuming successful fresh-state tests establish
+continuous operation. **Consequences:** the continuous acceptance exercises occlusion,
+active sensing, independent motion, hidden fault, transfer and resumed behavior.
+Training includes isolated views and continuous movement episodes with up to four
+detached preceding frames. Approach labels use learned stereo bearings rather than
+an unavailable authoritative bearing. The sensory query encodes a compact current
+interface, with full map/self structures retained as relational context. Replay
+reuses the original trainer's full losses and carried-state contract with the same
+model, optimizer and RNG; abbreviated pointer-only replay did not retain enough
+structural competence. Truncated training is bounded; unrestricted continual retention and calibrated
+causal attribution remain unresolved.
+
+## ADR-017: atomic complete-state checkpoint and a local live application
+
+**Decision:** an outer versioned archive embeds the original observer checkpoint,
+native world and separate sensory/runtime/training state. Pending pre-action experience,
+optimizer, RNG and frozen/trainable flags restore with parameters. The next recurrent
+step, physical continuation and optimizer update are checked. A standard-library local
+HTTP service serializes actual world/observer operations; browser canvases show real
+state and raw cameras. Headless execution uses the same coordinator.
+**Alternatives:** serializing executable Python, replacing old formats, cosmetic
+animation, omitting pending experience, or adding a graphics dependency just for controls.
+**Consequences:** existing Goal 001–003 formats remain readable. Distribution includes
+the HTML asset. Same-platform deterministic continuation is exercised; hashes are not
+authentication. Application access is local, not an authenticated remote product.
+
+## Unresolved after Goal 004
+
+- Broader perception/effect grounding and externally authenticated observation sources;
   local attributed support does not establish universal or externally verified truth.
+- Calibrated stereo confidence, indistinguishable-object identity, multi-view motion
+  inference, general evidence-seeking/planning, and realistic materials/lighting.
+- Controlled online update policy, retention under longer interactions and calibrated
+  world/self/interface attribution beyond the bounded training distribution.
 - Broader structural encoding and planning depth; learned attention/active graph budgets
   that remain explicit about excluded knowledge. Current encoding/selection is operational
   for the bounded curriculum, not established across all cornerstone semantics.

@@ -55,6 +55,7 @@ class NeuralObserverModel(nn.Module):
         forced: Sequence[Proposal | None] | None = None,
         *,
         steps: int | None = None,
+        sensory: Sequence[Tensor | None] | None = None,
     ) -> tuple[ModelOutput, ...]:
         if not frames:
             raise ValidationError("Neural computation requires at least one graph")
@@ -85,6 +86,18 @@ class NeuralObserverModel(nn.Module):
             [offset + frame.query_index for offset, frame in zip(offsets, frames, strict=True)],
             device=device,
         )
+        if sensory is not None:
+            # Use the declared compact observation interface at the sensory query.
+            # Full receipts/track graphs remain available for relational messages;
+            # their varying metadata must not alter the encoding of current intent.
+            features = features.clone()
+            for query_index, frame in zip(queries, frames, strict=True):
+                if frame.intent_features is not None:
+                    if frame.intent_features.shape != (FEATURE_SIZE,) or not bool(
+                        torch.isfinite(frame.intent_features).all()
+                    ):
+                        raise ValidationError("Compact sensory intent features are invalid")
+                    features[query_index] = frame.intent_features.to(device)
         prior = torch.zeros((size, w), device=device)
         contexts: list[Tensor] = []
         for frame, state, offset in zip(frames, previous, offsets, strict=True):
@@ -107,6 +120,16 @@ class NeuralObserverModel(nn.Module):
             contexts.append(state.context.to(device))
         context = torch.stack(contexts)
         base = torch.tanh(cast(Tensor, self.encoder(features)))
+        if sensory is not None:
+            if len(sensory) != len(frames):
+                raise ValidationError("Sensory/structural batch sizes differ")
+            additions = torch.zeros_like(base)
+            for query_index, embedding in zip(queries, sensory, strict=True):
+                if embedding is not None:
+                    if embedding.shape != (w,) or not bool(torch.isfinite(embedding).all()):
+                        raise ValidationError("Sensory activation must match shared field width")
+                    additions[query_index] = embedding.to(device)
+            base = base + additions
         h = base + torch.sigmoid(self.carry) * prior
         edge_encoding = torch.tanh(cast(Tensor, self.edge_encoder(edge_features)))
         sources, targets = edges[0], edges[1]
@@ -146,6 +169,11 @@ class NeuralObserverModel(nn.Module):
             ]
             pointer_field = field + relations
             query = field[frame.query_index]
+            if sensory is not None:
+                # Current sensor/intention input remains directly available at the
+                # decoding boundary. Relational refinement and self-history must
+                # contextualize an observation without erasing its current content.
+                query = query + base[offset + frame.query_index]
             phase = torch.tensor([1.0, 0.0, 1.0], device=device)
             decoder = cast(
                 Tensor,

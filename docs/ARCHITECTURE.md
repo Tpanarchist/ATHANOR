@@ -10,6 +10,7 @@ not establish that hypothesis experimentally.
 
 ```text
 instruction / observations / demonstrations / consequences
+independent native 3D territory → restricted raw stereo / proprioception (Goal 004)
                     ↓
 bounded language / native teaching / attributed observations (Goal 003)
                     ↓
@@ -22,7 +23,8 @@ versioned structures / taught schemas / typed claims / reusable procedures
 execution receipts / rejections → typed feedback / operational self-map (Goal 002)
                     ↓
 supervised meaning + structural parameter updates / checkpoints (Goals 002/003)
-learned perception / broader calibration / continual learning (future)
+learned sensory activation / physical prediction / grounded feedback (Goal 004)
+broader calibration / continual learning / scalable activation (future)
 ```
 
 The kernel owns computational admissibility, not truth. Knowledge is represented in
@@ -114,6 +116,36 @@ Two minimal cornerstone additions support this: public atomic multi-call transac
 and exact category reflection in taught programs. Revisions, namespaces, inherited
 constraints, production receipts and native persistence retain their previous contracts.
 Checkpoint format 2 adds meaning logits and restores the original neural format 1.
+
+## Implemented Goal 004 connection
+
+Territory and observer map are independent native stores. The spherical body receives
+two actual nearest-hit RGB projections and limited odometry/contact/command receipts.
+The observer cannot access the territory object graph. Training authority is a separate
+curriculum path. Exterior viewer data never feeds the observer's model.
+
+A shared convolutional adapter learns foreground and continuous appearance. Known
+geometry estimates relative depth from learned stereo correspondence. Native tracks
+hold revisable perceptual identity/position hypotheses and explicitly preserve partial,
+ambiguous and hidden states. Exact association algorithms do not establish an independent
+learned theory of object permanence. New visual conventions are installed through the
+existing attributed teaching/lexical structures using actual camera examples.
+
+Pixels, limited proprioception and a compact intention view using the same structural
+encoder activate the existing relational recurrent field. The same model selects
+installed motor procedures. Its native command is validated before territory execution;
+actual consequences return through the restricted port. A physical readout predicts
+conditioned outcomes from that field. Rejections and physical failures update the
+existing self-map, keeping prediction, preference and capability evidence distinct.
+General exact relationship procedures operate on learned map estimates and reject
+unresolved measurements. A native answer about an estimate is not territory truth.
+
+Grounded training uses current-parameter carried contexts and structural/semantic replay;
+the existing non-sensory inference path remains unchanged. Full outer checkpoints retain
+world, original observer state/format, sensory weights, map/histories, optimizer/RNG,
+trainability and pending experience. A local interactive viewer and headless coordinator
+use the same execution path. See GROUNDED_OBSERVER and GROUNDED_API for precise contracts,
+critical review, physics approximations and persistent uncertainty limits.
 
 ## Cost and concurrency
 

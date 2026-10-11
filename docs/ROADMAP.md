@@ -30,7 +30,21 @@ operational transfer is exercised with newly installed concepts and fixed weight
 See MEANING, MEANING_API and VALIDATION. This is bounded operational meaning, not
 open-domain language understanding or learned sensory perception.
 
-## 004: Continual learning and calibrated capabilities
+## 004: Grounded observer — implemented
+
+Independent persistent bounded 3D territory uses the native cornerstone; a spherical
+body receives actual raw stereo images and limited proprioception. Learned shared
+perception/fusion feeds the existing relational recurrent observer, which proposes
+native validated motor procedures and predicts measured consequences. Camera-grounded
+teaching, conservative identity/depth hypotheses, occlusion, independent motion,
+active sensing, physical failures, world/self/interface alternatives, empirical
+knowledge consolidation, replay, complete-state checkpoints and a live local viewer
+operate through one runtime. Exact geometry remains exact; belief remains qualified.
+See GROUNDED_OBSERVER, GROUNDED_API and VALIDATION. The original language and
+mathematical/categorical paths remain available. This is bounded embodied learning,
+not a general learned causal theory or full digital universe.
+
+## 005: Continual learning and calibrated capabilities
 
 Define controlled updates from instruction, demonstration, observation and consequence.
 Test retention, interference, conflict, calibrated uncertainty, safe abstention and
@@ -42,7 +56,7 @@ Extend grammar/role teaching beyond the bounded Goal 003 examples. Add externall
 authenticated observation/effect sources and appropriate empirical validation;
 resolve definition versioning/import/unification before broad knowledge ingestion.
 
-## 005: Scalable activation and knowledge retention
+## 006: Scalable activation and knowledge retention
 
 Measure total encoding, inference, training and knowledge storage costs. Add graph
 indexes, learned sparse activation budgets with explicit exclusion semantics, durable
@@ -51,7 +65,7 @@ Avoid silent revision drift or deleting provenance dependencies. Improve represe
 fidelity beyond compressed hash features where evidence warrants it. Runtime limits
 remain separate from model-size hypotheses.
 
-## 006: Controlled process refinement
+## 007: Controlled process refinement
 
 Represent procedure/representation proposals as structural data. Validate adoption
 against held-out execution, retention and resource contracts, with rollback and
@@ -59,13 +73,13 @@ versioned usage. Review changes to the trusted native validator/interpreter sepa
 The cornerstone makes operations reflectable; the neural observer can select them.
 Neither milestone implements autonomous architecture rewriting.
 
-## 007: Digital-universe integration
+## 008: Broader digital-universe integration
 
-Connect deterministic simulations and external environments through explicit queued
+Extend the local Goal 004 simulation to richer environments and explicit queued
 actions, observations and effect receipts. Preserve environment/kernel boundaries,
 headless operation, reproducible replay and resource accounting. Evaluate agency,
 transfer, recovery and persistent learning after those interfaces exist.
 
 Each milestone needs contracts and working evidence before being called implemented.
 Open-domain chat, large ingestion pipelines, autonomous architecture search, elaborate
-visuals and comparative benchmark campaigns remain outside the first three goals.
+visuals and comparative benchmark campaigns remain outside the first four goals.

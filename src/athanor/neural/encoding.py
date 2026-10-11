@@ -117,6 +117,7 @@ class Frame:
     candidate_indices: tuple[int, ...]
     arities: tuple[int, ...]
     meaning_indices: tuple[int, ...] = ()
+    intent_features: Tensor | None = None
 
     @property
     def operations(self) -> tuple[Ref, ...]:

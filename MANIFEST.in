@@ -1,7 +1,7 @@
 include README.md pyproject.toml uv.lock .python-version
 recursive-include docs *.md
 recursive-include tests *.py
-recursive-include src/athanor *.py py.typed
+recursive-include src/athanor *.py py.typed *.html
 prune .tools
 prune .venv
 prune artifacts

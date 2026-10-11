@@ -20,6 +20,9 @@ uses local learned parameters and exact installed procedures. No external AI is 
 the execution path. Goal 003 adds bounded learned language interpretation, durable
 meaning conventions, contextual alternatives, validated conceptual teaching,
 attributed observation grounding, correction and offline lesson import.
+Goal 004 connects that same recurrent intelligence to an independent persistent 3D
+world: raw stereo cameras, trained perception, grounded names, learned actions and
+consequence predictions, world/self uncertainty, complete checkpoints and a live viewer.
 
 ## Install and run (Python 3.14)
 
@@ -115,6 +118,45 @@ The runnable demo exports its actual prepared lesson and native knowledge alongs
 the combined checkpoint and measured report. See [meaning contracts](docs/MEANING.md)
 and [semantic API, vocabulary and lesson format](docs/MEANING_API.md).
 
+## Inhabit and observe a world (0.4.0)
+
+The grounded demonstration extends the actual Goal 003 trained model. It trains
+the sensory adapter on raw images, then learns contextual actions and physical
+predictions through the existing structural encoder, relational communication and
+recurrent field. Native exact procedures validate commands; the independent world
+executes their physical consequences. The observer receives pixels and limited
+proprioception, never authoritative object IDs, depth maps or hidden world coordinates.
+
+```powershell
+.venv\Scripts\athanor-grounded-demo.exe --base-checkpoint artifacts\meaning-observer.athanor --save artifacts\grounded-observer.athanor
+.venv\Scripts\athanor-world.exe --checkpoint artifacts\grounded-observer.athanor
+```
+
+Open `http://127.0.0.1:8765`. Start, pause, advance one tick, inspect the outside
+world and actual stereo views, teach a visible name, instruct `approach <name>`,
+inspect hypotheses/predictions/self-map, learn from a measured consequence, and
+save/restore. Think refines internal activation without advancing simulation time.
+External controls are explicitly labeled. The viewer begins paused on the saved
+world; it displays live state rather than a scripted animation.
+
+The integrated acceptance uses newly taught visual meaning, learned approach/search,
+independent object motion, occlusion and reappearance, a hidden actuator limitation,
+transfer to another arrangement and exact continuation after saving/restoring.
+It records held-out before/after learning, earlier semantic competence and all
+actual action consequences in `artifacts/grounded-observer.report.json`.
+
+```powershell
+.venv\Scripts\athanor-world.exe --checkpoint artifacts\grounded-observer.athanor --headless --steps 10
+.venv\Scripts\athanor-grounded-demo.exe --resume artifacts\grounded-observer.athanor --save artifacts\grounded-resumed.athanor
+```
+
+Headless execution uses the same runtime. Inference needs neither the training
+curriculum nor the original teacher. `athanor.world` remains independently usable
+without PyTorch. See [grounded design](docs/GROUNDED_OBSERVER.md),
+[application, sensor, training and checkpoint API](docs/GROUNDED_API.md) and
+[measured validation](docs/VALIDATION.md). New visual names reuse the learned
+descriptor and installed knowledge; no network is allocated per concept.
+
 ## What the demonstration establishes
 
 The runnable sequence is **Create → Teach → Bind → Transform → Compose → Execute →
@@ -176,6 +218,8 @@ import/unification between lineages needs a future explicit protocol.
 - [Verification evidence and requirement coverage](docs/VALIDATION.md)
 - [Meaning architecture and critical review](docs/MEANING.md)
 - [Semantic teaching, language and offline lesson API](docs/MEANING_API.md)
+- [Grounded observer integration and critical review](docs/GROUNDED_OBSERVER.md)
+- [World, camera, application and grounded learning API](docs/GROUNDED_API.md)
 
 `values` and `contracts` define representation; `store` enforces invariants;
 `programs` evaluates taught procedure data; `kernel` exposes the small public API;
@@ -184,6 +228,8 @@ outside the installable package. The optional `neural` package contains the shar
 encoder/model, observer boundary, curriculum/trainer, checkpoint format, and learning demo.
 `semantics` supplies native lexical/teaching/grounding data and the optional learned
 language observer, two-family curriculum and integrated demonstration.
+`world` supplies native geometry/territory/cameras; `grounded` supplies the trained
+sensory adapter, same-observer integration, training/checkpoints and live application.
 
 ## Limits that matter
 
@@ -193,10 +239,17 @@ selection and insufficiency abstention reached 100%. Six proposals still bound a
 argument incorrectly. A separate 48-case new-definition set reached 100% exact
 proposals. These are curriculum results, not evidence of open-domain intelligence.
 Goal 003 adds bounded language use and structured conceptual teaching, with explicit
-observation attribution. Open-domain language teaching, learned perception, calibrated
+observation attribution. Goal 004 adds learned bounded RGB foreground/appearance
+and physical consequence prediction. Open-domain language teaching, general perception, calibrated
 open-world uncertainty, unrestricted continual learning, and autonomous self-improvement
 remain unimplemented. Corrections are explicit instruction; no subjective experience
 is claimed. The Goal 002 results above describe its original curriculum separately.
+Visual identity and hidden existence are conservative hypotheses over learned
+appearance; identical objects and clipped/occluded views remain uncertain. The
+simulator has simple geometry and planar body translation; search is a bounded
+learned exploration convention. Confidence is not calibrated. Ordinary exact
+bookkeeping does not establish a learned general causal theory. Controlled replay
+limits forgetting in this curriculum; unrestricted continual learning remains open.
 
 Schemas and definitions are immutable; revised definitions get new identities.
 Inheritance rejects conflicting field contracts rather than implementing override

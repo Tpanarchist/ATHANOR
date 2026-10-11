@@ -1,8 +1,133 @@
-# ATHANOR Goals 001, 002 and 003 — verified implementation
+# ATHANOR Goals 001–004 — verified implementation
 
-Date: 2026-10-10. Platform exercised: Windows, CPython 3.14.6.
-Development tools exercised: uv 0.11.28, Ruff 0.17.0, mypy 2.4.0.
-The development dependency resolution is recorded in `uv.lock`.
+Date: 2026-10-11. Windows, CPython 3.14.6, PyTorch 2.14.1+cpu.
+The core and world remain independently usable without PyTorch.
+
+## Goal 004 grounded learning and operational evidence
+
+Version 0.4.0 extends the existing encoder/message/GRU/scorer with a shared two-eye
+RGB adapter and physical-consequence readout. The existing recurrent model still
+has 107,980 parameters; the sensory extension has
+15,002. These dimensions follow the existing 64-dimensional
+field and fixed embodied interface, not a parameter ceiling or new network per
+concept. The shared model's parameter change from Goal 003 has L2 norm
+40.1898.
+
+The public training run restores the original Goal 003 checkpoint. It trains visual
+foreground and continuous appearance on 240 randomly prepared scenes for 80 passes,
+then action selection and six measured consequences on 400 isolated situations plus
+128 valid continuous episode frames for 80 passes.
+The 160-frame episode budget skips examples lacking resolved stereo teaching
+evidence rather than injecting an authoritative object label. A separate 40-scene perception set and
+100-situation operation set use different seeds. Appearance/name teaching, variables,
+namespace/allocation, geometry, clutter, library size, actual motion and hidden faults
+vary. Labels use teacher authority only during preparation; the ordinary observer
+receives raw RGB and limited proprioception, never IDs, hidden coordinates, object
+classes, segmentation masks or fault labels.
+
+| Measurement | Before learning | After learning |
+| --- | --- | --- |
+| Foreground intersection-over-union on 40 held-out scenes | 0.00000 | 0.98543 |
+| Normalized continuous appearance mean absolute error | 0.36438 | 0.05904 |
+| Raw operation proposal on 100 held-out situations | 0% | 97% |
+| Six-channel physical consequence mean squared error | 0.234588 | 0.014434 |
+| Complete retained structural proposals, 128 Goal 002 cases | Prior Goal 003 model: 128/128 | 128/128 |
+| Complete retained meaning/ordered-role proposals, 100 Goal 003 cases | 99/100 | 100/100 |
+| Additional 40-case meaning/ordered-role check | Not measured here | 39/40 |
+
+These are bounded correctness and transfer checks, not a comparative campaign or an
+open-domain claim. Operation results precede execution/evidence vetoes. Remaining
+proposal errors are real errors; deterministic kernel validation alone cannot prove
+that the neural interpretation was appropriate.
+The additional 40-case check retains one incorrect ordered mathematical proposal;
+the perfect 100-case retention set does not imply general error-free interpretation.
+
+The same original trainer supplies structural and semantic replay, including ordered
+arguments, applicability, meaning, carried activations, and distinct prediction,
+preference and capability losses. One shared model, AdamW optimizer and owned shuffle
+RNG serve grounded and native learning. Continuous lessons regenerate up to four
+preceding activations using current parameters and detach them at the current update
+boundary. Sensory queries encode compact current intent; full map/self structures
+remain available for relational messages. The visual layers are frozen during action
+training and can be adapted through further explicit visual lessons.
+
+The continuous runtime scenario performs actual learned proposals, not manual motor
+corrections or a scene-specific fallback:
+
+- Raw stereo distinguishes unfamiliar visible participants. A teacher points to an
+  observed region and names its appearance kind `beacon`; no parameters change.
+- The acquired concept activates the learned approach policy, reducing actual target
+  distance by 0.4937 world units in three steps.
+- The installed exact `within reach` procedure executes on learned map measurements.
+  Its Boolean result concerns those estimates; unresolved depth cannot justify it.
+- An independently moving object produces map/odometry residuals. Measurement error
+  remains an alternative to independent motion.
+- An inserted occluder leaves 1 uncertain hidden identity hypothesis.
+  The learned bounded search convention changes viewpoint, exposes camera evidence,
+  and reuses a supported identity hypothesis after reappearance.
+- A hidden actuator failure yields actual zero movement, a failed physical capability
+  record, and competing obstruction, actuator and observation-interface explanations.
+  The fault setting is not supplied to the observer.
+- The taught kind transfers to a different valid arrangement, reducing actual target
+  distance by 1.2137 units, including learned forward actions.
+- Measured prediction discrepancy and a separate observed-depth progress preference
+  (0.443409) change neural parameters through an actual experience
+  update. This does not establish an inferred cause as true.
+- Territory and acquired-map snapshots restore exactly. The next recurrent proposal
+  and the next actual physical step match after restore. No territory references enter
+  observer knowledge. The teacher is absent from inference.
+
+The public checkpoint has 5,281 optimizer updates and occupies
+1,483,991 bytes. Its runtime preserves installed knowledge, parameters,
+activation field, input activation used for the pending decision, raw sensory frames,
+working tracks, feedback history, optimizer and RNG. Replaying a saved experience
+reproduces the original neural logits; further training resumes bitwise in the focused
+optimizer test. Archive version 2 adds exact inference-input preservation and reads
+the earlier Goal 004 format 1. Goal 001–003 checkpoint formats remain readable.
+
+Validation covers **all 149 named current tests**: a regression run passed 146 tests,
+including both original full learning acceptances; after final contract changes a
+fresh run passed all 146 current non-training contracts; the fresh complete Goal 004
+training acceptance passed in 1171.870 seconds. Combined named-test coverage is
+checked explicitly. All original 116 tests remain. Ruff lint/format, strict mypy and
+Git whitespace checks pass.
+
+Independent installed-wheel checks on Python 3.14 pass 93 native tests without
+PyTorch; 56 optional neural tests are explicitly skipped. The installed neural wheel
+passes all 20 new grounded contracts, restores the earlier neural/semantic checkpoints,
+executes the acquired `gap` procedure to 22, and advances the same headless runtime.
+Wheel source/viewer bytes match the workspace; source archives include documentation,
+tests and viewer HTML and exclude generated artifacts/caches/environments.
+
+The interactive viewer was exercised through its actual controls: Think leaves the
+world clock unchanged; learned stepping advances it; learning advances the optimizer;
+Save/Restore recovers exact clock and learned state after external motion; camera
+teaching installs a new named concept and activates a learned proposal. Start/Pause/
+Stop affect actual simulation advancement. External controls are explicitly labeled.
+The viewer displays authoritative exterior state separately from the two actual camera
+images, map hypotheses, predictions/consequences and self-map. Headless execution uses
+the identical runtime. See `artifacts/grounded-viewer.jpg` for the live application.
+
+Evidence: `artifacts/grounded-observer.report.json`,
+`artifacts/grounded-retention.report.json`, `artifacts/grounded-observer.athanor`, its
+`-parameters.pt` training state and `-continued.athanor` continuation. These are local
+generated evidence, intentionally excluded from package distributions and Git.
+
+Limits: flat colors and simple spheres/boxes; 24-pixel stereo in the exercised model;
+coarse and sometimes fragmented/truncated perception; appearance-based identity
+hypotheses rather than general object identity; uncalibrated confidence; explicitly
+taught persistence and calibrated geometry rather than a newly discovered theory of
+object permanence; bounded motor goals/search rather than general planning; empirical
+associations and competing causes rather than universal causal inference; planar body
+translation, prescribed velocity and discrete object collision rather than full
+rigid-body dynamics; controlled replay rather than unrestricted continual learning.
+The grounded map has its own native knowledge scope; original symbolic libraries
+remain separately usable rather than being silently unified across namespaces.
+
+The next work should resolve calibration/abstention, indistinguishable-object tracking,
+longer-history retention, import/unification and scalable active-graph/history costs
+before broadening the world. No general-intelligence, consciousness, subjective
+experience, real-camera transfer or cross-platform physics-replay result is inferred.
 
 ## Goal 003 meaning, teaching and grounding evidence
 
