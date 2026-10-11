@@ -21,7 +21,7 @@ from .model import NeuralObserverModel
 from .observer import Observer
 from .training import Trainer, TrainingConfig
 
-VERSION = 1
+VERSION = 2
 
 
 def _ref(ref: Ref) -> list[str | int]:
@@ -81,6 +81,9 @@ def save_checkpoint(observer: Observer, path: Path, *, trainer: Trainer | None =
             "outcome": output.outcome.cpu(),
             "operation_index": output.operation_index,
             "argument_indices": output.argument_indices,
+            "meaning_logits": None
+            if output.meaning_logits is None
+            else output.meaning_logits.cpu(),
         },
         "optimizer": None if trainer is None else trainer.optimizer.state_dict(),
         "random_state": None if trainer is None else trainer.rng.getstate(),
@@ -164,7 +167,8 @@ def restore_checkpoint(path: Path) -> tuple[Observer, Trainer | None]:
                     "observation",
                     "hashes",
                 }
-                or metadata["version"] != VERSION
+                or type(metadata["version"]) is not int
+                or metadata["version"] not in (1, VERSION)
             ):
                 raise PersistenceError("Unsupported checkpoint metadata")
             data = {name: archive.read(name) for name in ("knowledge.json", "tensors.pt")}
@@ -250,7 +254,7 @@ def restore_checkpoint(path: Path) -> tuple[Observer, Trainer | None]:
             if frame.refs != refs:
                 raise PersistenceError("Saved activations disagree with reconstructed graph")
             output = payload["output"]
-            if type(output) is not dict or set(output) != {
+            output_keys = {
                 "operation_logits",
                 "argument_logits",
                 "applicability_logits",
@@ -259,8 +263,15 @@ def restore_checkpoint(path: Path) -> tuple[Observer, Trainer | None]:
                 "outcome",
                 "operation_index",
                 "argument_indices",
-            }:
+            }
+            if metadata["version"] >= 2:
+                output_keys.add("meaning_logits")
+            if type(output) is not dict or set(output) != output_keys:
                 raise PersistenceError("Malformed saved proposal")
+            if metadata["version"] >= 2 and bool(frame.meanings) != (
+                output["meaning_logits"] is not None
+            ):
+                raise PersistenceError("Saved meaning activations disagree with the graph")
             op_index = output["operation_index"]
             if type(op_index) is not int or not 0 <= op_index <= len(frame.operations):
                 raise PersistenceError("Invalid saved operation pointer")
@@ -290,6 +301,9 @@ def restore_checkpoint(path: Path) -> tuple[Observer, Trainer | None]:
                 op_index,
                 indices,
                 observer.state,
+                None
+                if output.get("meaning_logits") is None
+                else _tensor(output["meaning_logits"], (len(frame.meanings) + 1,)),
             )
             observer.propose()  # Check the boundary expectation contract, too.
         elif refs or payload["output"] is not None:

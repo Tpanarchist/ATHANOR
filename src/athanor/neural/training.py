@@ -57,6 +57,7 @@ class Trainer:
                 "capability",
                 "preference",
                 "prediction",
+                "meaning",
                 "loss",
             )
         }
@@ -87,6 +88,18 @@ class Trainer:
                 losses: dict[str, list[Tensor]] = {key: [] for key in totals if key != "loss"}
                 for lesson, output, probe in zip(batch, outputs, probes, strict=True):
                     frame, target = lesson.frame, lesson.target
+                    if output.meaning_logits is not None:
+                        meaning_index = (
+                            len(frame.meanings)
+                            if lesson.meaning is None
+                            else frame.meanings.index(lesson.meaning)
+                        )
+                        losses["meaning"].append(
+                            F.cross_entropy(
+                                output.meaning_logits.unsqueeze(0),
+                                torch.tensor([meaning_index], device=self.model.device),
+                            )
+                        )
                     op_index = (
                         len(frame.operations)
                         if target.operation is None
@@ -147,6 +160,7 @@ class Trainer:
                     means["selection"]
                     + means["arguments"]
                     + 0.3 * means["applicability"]
+                    + 0.5 * means["meaning"]
                     + 0.25 * (means["capability"] + means["preference"] + means["prediction"])
                 )
                 self.optimizer.zero_grad(set_to_none=True)

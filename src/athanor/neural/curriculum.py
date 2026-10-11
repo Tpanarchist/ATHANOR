@@ -45,6 +45,7 @@ class Lesson:
     probe: Proposal
     feedback: Feedback
     prior: Frame | None = None
+    meaning: Ref | None = None
 
 
 def install(seed: int, *, novel: bool = False) -> tuple[Athanor, dict[str, Ref]]:

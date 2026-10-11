@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "athanor"
-version = "0.2.0"
-description = "ATHANOR's teachable structural foundation and recurrent neural observer"
+version = "0.3.0"
+description = "ATHANOR's structural foundation, recurrent observer and teachable meaning interface"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = []
@@ -17,6 +17,8 @@ neural = ["torch>=2.10,<3"]
 [project.scripts]
 athanor-demo = "athanor.demo:main"
 athanor-neural-demo = "athanor.neural.demo:main"
+athanor-meaning-demo = "athanor.semantics.demo:main"
+athanor-teach = "athanor.semantics.lessons:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

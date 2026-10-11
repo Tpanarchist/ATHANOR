@@ -114,10 +114,53 @@ and knowledge validation precede use. PyTorch remains optional for the foundatio
 CPU path. No executable Python callbacks/source/model classes are persisted. No
 cross-version/hardware bitwise portability or checkpoint authenticity claim.
 
-## Unresolved after the first neural model
+## ADR-011: meaning conventions are attributed structural knowledge
 
-- Grounding contracts: what observation supports which distinction/reference, and
-  how contradictory observations affect interpretation without erasing provenance.
+**Context:** spelling, identity, operational meaning and truth must remain distinct.
+**Decision:** symbols and scoped referent bindings are ordinary native structures;
+typed denotes claims carry evidence. Concepts reference definitions, roles, examples
+and exact procedures. Synonyms share referents, not symbol identities. Explicit
+correction supersedes specified conventions and preserves old evidence.
+**Alternatives:** lexical similarity as equivalence, destructive dictionary replacement,
+or treating a teacher assertion as world truth. These conceal uncertainty/provenance.
+**Consequences:** explicit alternatives/conflicts, persistent acquired meaning, scoped
+observations. Grounding is attributed local support, not authenticated external truth.
+
+## ADR-012: learned meaning and ordered language proposals reuse the observer
+
+**Decision:** bounded lexical observation preserves token/mention positions and taught
+reference links; it never emits a selected operation or roles. Existing scorer also
+scores variable concepts, reusing the same recurrent field. Evidence policy can veto
+but cannot repair learned pointers. Newly installed knowledge allocates no neural weights.
+**Alternatives:** phrase-command routing, operation-specific parsing, separate per-concept
+networks, a pretrained language model in inference. None establishes the requested
+shared acquisition/use mechanism.
+**Consequences:** train both fresh and carried states across different prior observations,
+real self-feedback, aliases, corrections, composed definitions and two concept families.
+Early fresh-only success exposed history interference; curriculum coverage is a real
+contract, not a justification for claiming broad generalization. Confidence remains
+uncalibrated, and valid but wrongly ordered calls require examples/feedback to detect.
+Possible referents are explicitly linked to the current observation as well as its
+attributed binding records. This exposes an established interface directly to shared
+relational communication and reduces stale-history interference. All alternatives
+remain candidates; it does not choose an operation or reorder inputs.
+
+## ADR-013: atomic lessons and scoped independent validation
+
+**Decision:** public staged multi-call transaction; exact category reflection for taught
+categorical algorithms; offline JSON procedures checked by exact examples and native
+contracts; teacher empirical assertions remain uncertain without separate observation.
+**Alternatives:** partial installation on failed checks; native membership classifier;
+executing teacher Python; adding observation support from teacher prose alone.
+**Consequences:** foundation remains independently usable; old semantics preserved.
+Examples validate implementations against supplied checks, not universal proofs.
+Observation provenance is attribution and scope, not authentication. Explicit support
+records connect claims and witnesses. Original neural checkpoints remain restorable.
+
+## Unresolved after Goal 003
+
+- Broader sensory/effect grounding and externally authenticated observation sources;
+  local attributed support does not establish universal or externally verified truth.
 - Broader structural encoding and planning depth; learned attention/active graph budgets
   that remain explicit about excluded knowledge. Current encoding/selection is operational
   for the bounded curriculum, not established across all cornerstone semantics.
@@ -130,4 +173,4 @@ cross-version/hardware bitwise portability or checkpoint authenticity claim.
   these must precede claims of efficient learning or useful recursive intelligence.
 
 These questions do not prevent the operational cornerstone and first neural observer.
-They prevent treating this bounded supervised competence as grounded general intelligence.
+They prevent treating bounded taught operational meaning as general intelligence.

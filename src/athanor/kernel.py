@@ -36,6 +36,7 @@ class Athanor:
         freeze(chosen)
         self._store = Store(namespace=chosen)
         self._lock = RLock()
+        self._transaction_active = False
 
     @property
     def namespace(self) -> str:
@@ -43,10 +44,27 @@ class Athanor:
 
     def _commit(self, action: Callable[[Store], Ref]) -> Ref:
         with self._lock:
+            if self._transaction_active:
+                raise ValidationError("Use the staged kernel while a transaction is active")
             staged = self._store.stage()
             result = action(staged)
             self._store = staged
             return result
+
+    def transaction[T](self, work: Callable[[Athanor], T]) -> T:
+        """Commit all staged kernel calls together; external side effects are not transactional."""
+        with self._lock:
+            if self._transaction_active:
+                raise ValidationError("Use the staged kernel for nested transactions")
+            staged = Athanor(namespace=self.namespace)
+            staged._store = self._store.stage()
+            self._transaction_active = True
+            try:
+                result = work(staged)
+                self._store = staged._store
+                return result
+            finally:
+                self._transaction_active = False
 
     def get(self, ref: Ref | str) -> Structure:
         """Refs resolve exact snapshots; an explicit ID string requests latest state."""

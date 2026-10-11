@@ -40,6 +40,11 @@ def members(of: Record) -> Record:
     return record(op="members", of=of)
 
 
+def category(of: Record) -> Record:
+    """Reflect the exact category reference, or None for an uncategorized participant."""
+    return record(op="category", of=of)
+
+
 def item(of: Record, index: int) -> Record:
     return record(op="item", of=of, index=index)
 
@@ -95,6 +100,7 @@ _KEYS = {
     "field": {"op", "of", "name"},
     "has_field": {"op", "of", "name"},
     "members": {"op", "of"},
+    "category": {"op", "of"},
     "item": {"op", "of", "index"},
     "if": {"op", "condition", "then", "otherwise"},
     "sequence": {"op", "items"},
@@ -129,7 +135,7 @@ def validate_expression(
     if op == "argument":
         if as_index(expression["index"]) >= arity:
             raise ValidationError("Argument index exceeds procedure arity")
-    elif op in {"field", "has_field", "members", "item"}:
+    elif op in {"field", "has_field", "members", "category", "item"}:
         child(expression["of"])
         if op in {"field", "has_field"}:
             as_string(expression["name"], "field name")
@@ -204,6 +210,8 @@ class Evaluator:
             return values[name]
         if op == "members":
             return self.get(as_ref(child(expression["of"]))).members
+        if op == "category":
+            return self.get(as_ref(child(expression["of"]))).category
         if op == "item":
             sequence_values = as_tuple(child(expression["of"]))
             index = as_index(expression["index"])

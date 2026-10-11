@@ -1,14 +1,112 @@
-# ATHANOR Goals 001 and 002 — verified implementation
+# ATHANOR Goals 001, 002 and 003 — verified implementation
 
 Date: 2026-10-10. Platform exercised: Windows, CPython 3.14.6.
 Development tools exercised: uv 0.11.28, Ruff 0.17.0, mypy 2.4.0.
 The development dependency resolution is recorded in `uv.lock`.
 
+## Goal 003 meaning, teaching and grounding evidence
+
+The 0.3.0 implementation extends the existing shared encoder/message/GRU/scorer.
+It retains 107,980 parameters: concept scoring, new words, new procedures and new
+specializations allocate no additional neural parameter sets. The verified standalone
+run restored Goal 002's 640-update checkpoint, then trained on 160 two-family native
+teaching cases (320 fresh/active lessons) plus 80 structural replay lessons for 40
+passes: 1,000 additional optimizer updates. Parameter change from the prerequisite
+has L2 norm 20.9873. The run took 356.54 seconds on the exercised CPU machine.
+
+| Held-out learned measurement | Before semantic training | After semantic training |
+| --- | --- | --- |
+| Operation/abstention pointer (100 cases) | 13/100 | 100/100 |
+| Concept meaning pointer (including null) | 66/100 | 100/100 |
+| Complete operation and ordered input proposal | 13/100 | 99/100 |
+| Insufficient/unknown/ambiguous abstention | 10/30 | 30/30 |
+| Ordered noncommutative proposals | 3/30 | 29/30 |
+| Actionable mathematical proposals | 3/54 | 53/54 |
+| Actionable categorical proposals | 0/16 | 16/16 |
+| Retained Goal 002 structural proposals | Original milestone: 122/128 | 128/128 |
+
+These measurements precede semantic evidence vetoes. One valid held-out noncommutative
+proposal still binds an input incorrectly. Kernel admissibility does not establish
+correct interpretation. Values, allocation/operation/candidate order, namespaces,
+aliases, category depth/field shapes and histories vary independently; no identities
+are encoded. These are bounded correctness/transfer checks, not an open-domain or
+comparative benchmark claim. Retention includes all 48 expected abstentions and all
+80 actionable exact results; the reported execution fraction 80/128 includes abstentions.
+
+The integrated episode uses actual neural proposals and exact kernel execution:
+
+- `subtract 3 from 17` produces 14 with reversed textual operands correctly bound.
+- `does bird include robin` produces true; `is turtle a bird` produces false.
+- Unknown `gap` abstains. A validated offline lesson then installs separation using
+  the existing difference procedure, checked in both input orders.
+- `gap 19 and 7` produces 12; its synonym `separation 5 and 24` produces 19.
+  `add it and 2` uses that resulting structure and produces 21.
+- A newly taught Finch specialization and observed wren reuse the general membership
+  procedure: membership in Animal and Finch both produce true.
+- `balance` retains two meanings and abstains without context. Supplied difference
+  context changes activation; one further internal refinement accepts the correct
+  learned proposal. No answer/operation is supplied by refinement.
+- `delta` first uses its taught sum convention (26). An explicit correction preserving
+  the prior binding changes its subsequent meaning to ordered difference (12).
+- Conflicting interpretation evidence blocks execution. Teacher assertions about
+  universal bird flight remain unknown. A separate local observation supports only
+  the observed participant's flight, without generalizing it to the category.
+- A two-clause composition produces 14 then 16 through result reuse. All new teaching,
+  synonyms, correction and specialization use exactly unchanged weights.
+- Save/restore preserves knowledge bytes, meaning interpretation, field/context and
+  the same next recurrent computation. A restored observer independently uses the
+  acquired `gap` concept on 31 and 9, producing 22. Continued supervised training
+  changes restored parameters and advances the optimizer to 1,642 updates.
+
+The default no-base demonstration reproduces Goal 002 prerequisite training from
+scratch before extending it. Its complete acceptance test also passed. The full
+regression run passed 114 tests, including both complete training demonstrations and
+all original 82 tests, in 534.317 seconds. Two final native validation tests were then
+added for type-aware context and exact referent/role contracts. A fresh 114-test run
+of every current non-training contract passed; combined named test evidence covers
+**all 116 current tests**, including the two full learning acceptances. Ruff check,
+format check and strict mypy pass. These details distinguish fresh evidence from
+an inferred total; no training acceptance was substituted by an artifact-only test.
+
+Installed-wheel checks exercise native teaching, persistence, exact execution and
+actual offline lesson CLI import in an environment without PyTorch. The optional
+neural wheel restores both the original format-1 observer and the new semantic
+checkpoint and executes acquired knowledge locally. The source archive includes
+updated documentation/tests and excludes caches, environments and generated artifacts.
+
+Generated evidence: `artifacts/meaning-observer.report.json`, trained checkpoint,
+its `-trained` parameter/optimizer checkpoint, its `-continued` checkpoint, native
+`.knowledge.json`, the prepared `.lesson.json` and `.before-teaching.json` input
+snapshot. These assets are intentionally ignored by Git and excluded from distributions.
+
+| Goal 003 requirement | Authoritative evidence |
+| --- | --- |
+| Resolve meaning architecture before modification | MEANING design/critical review; ADR-011 through ADR-013 |
+| Symbol/referent identity, synonyms and contextual alternatives | Lexicon/native binding tests; learned alias/context cases and live correction |
+| Semantic activation and ordered roles | Same model/scorer; raw held-out pointer measurements; reversed subtraction and categorical role binding |
+| Usable structured teaching and specialization | Teacher/Example/native kernel contracts; new executable separation and Finch/wren episode |
+| Example validation and safe failure | Exact example checks; failed and late-failing packs preserve snapshots, IDs and receipts |
+| Unknown/conflicting interpretations | Explicit evidence vetoes; ambiguous meanings remain visible; late conflict/supersession blocks pending interpretation |
+| Observation grounding and empirical uncertainty | Attributed scoped witness/support records; unverified assertions stay unknown; importer cannot mint observations |
+| Optional external-AI preparation | Strict offline JSON translation and actual base-wheel CLI import; no Python source or live teacher calls |
+| Self-map distinction and feedback | Installation/recognition records versus real attempts/results; active shared self-map; three discrepancy channels |
+| Persistence and continued learning | Exact native/semantic checkpoints, next-step equality, optimizer/RNG equality test and changed continued weights |
+| Preserve Goals 001/002 | Original 82 tests pass, original checkpoint restores, structural competence retention measured |
+| Independent foundation and package | Zero runtime dependencies for native foundation/teaching; isolated wheel checks on Python 3.14 |
+
+Limits remain: restricted grammar, explicit structured definitions rather than free
+prose compilation, attributed rather than authenticated sensory evidence, uncalibrated
+confidence, bounded active history/graph, no unrestricted continual learning, and no
+consciousness or general-intelligence claim. Larger knowledge needs indexed activation,
+retention and conflict/import policies; broader language needs diverse teaching and
+meaning/role evaluation rather than merely more parameters.
+
 ## Goal 002 learning and integration evidence
 
 The neural implementation uses PyTorch 2.14.1 on the exercised CPU path with Python
 3.14.6. The kernel implementation and its original 61 tests are preserved; its only
-source change is the package version. The neural dependency is optional. A separate
+source change at that milestone was the package version. Goal 003 subsequently adds
+the documented transaction/category-reflection extensions. The neural dependency is optional. A separate
 base-wheel environment has no PyTorch and imports/runs the cornerstone independently.
 
 The default runnable learning demonstration trains from scratch on 256 structurally

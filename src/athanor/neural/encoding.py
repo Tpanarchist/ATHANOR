@@ -116,6 +116,7 @@ class Frame:
     operation_indices: tuple[int, ...]
     candidate_indices: tuple[int, ...]
     arities: tuple[int, ...]
+    meaning_indices: tuple[int, ...] = ()
 
     @property
     def operations(self) -> tuple[Ref, ...]:
@@ -124,6 +125,10 @@ class Frame:
     @property
     def candidates(self) -> tuple[Ref, ...]:
         return tuple(self.refs[index] for index in self.candidate_indices)
+
+    @property
+    def meanings(self) -> tuple[Ref, ...]:
+        return tuple(self.refs[index] for index in self.meaning_indices)
 
 
 class GraphBuilder:
@@ -209,4 +214,9 @@ class GraphBuilder:
             tuple(positions[ref] for ref in operations),
             tuple(positions[ref] for ref in observation.candidates),
             tuple(arities),
+            tuple(
+                index
+                for index, node in enumerate(selected.values())
+                if node.role == Role.DATA and node.fields.get("kind") == "concept"
+            ),
         )

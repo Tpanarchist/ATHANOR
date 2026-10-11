@@ -11,7 +11,7 @@ not establish that hypothesis experimentally.
 ```text
 instruction / observations / demonstrations / consequences
                     ↓
-domain interfaces and grounding (future)
+bounded language / native teaching / attributed observations (Goal 003)
                     ↓
 shared recurrent structural encoding / activation / pointers (Goal 002)
                     ↓ proposed exact structural actions
@@ -21,8 +21,8 @@ versioned structures / taught schemas / typed claims / reusable procedures
                     ↓
 execution receipts / rejections → typed feedback / operational self-map (Goal 002)
                     ↓
-supervised parameter updates / checkpoints (Goal 002)
-grounding / broader calibration / continual learning (future)
+supervised meaning + structural parameter updates / checkpoints (Goals 002/003)
+learned perception / broader calibration / continual learning (future)
 ```
 
 The kernel owns computational admissibility, not truth. Knowledge is represented in
@@ -84,6 +84,36 @@ learning, or controlled self-improvement. Structured correction is externally su
 Architecture-changing proposals should create new procedure/schema definitions,
 receive tests and controlled review, and explicitly redirect future usage. Rewriting
 the validator or interpreter from inside a taught program is not permitted.
+
+## Implemented Goal 003 connection
+
+Symbols, context-qualified meaning bindings, concepts, lexical observations and
+corrections use ordinary native structures and typed attributed claims. Exact
+tokenization/literal parsing/explicit reference grounding construct an utterance graph;
+they do not select operations or reorder roles. One existing encoder, message process,
+GRU and shared scorer activate concepts and propose procedures/ordered inputs. Concept
+scoring adds no neural parameter set. Aliases and installed definitions remain native
+knowledge, separate from neural language competence.
+
+An explicit evidence boundary vetoes unsupported, ambiguous, conflicting or unresolved
+interpretation; it cannot repair a proposal. Actual accepted execution updates measured
+self-observations and recognition records through the same recurrent field. Installed,
+recognized, demonstrated and predicted capabilities remain separate. The mathematics
+and categorical curriculum includes fresh observations, real prior execution histories,
+composed procedures, unfamiliar aliases, contextual alternatives and explicit corrections.
+
+Complete validated definitions use the existing model with weights unchanged. An
+optional offline JSON importer checks portable procedures against exact examples and
+contracts atomically. Teacher assertions cannot manufacture observation support.
+Scoped attributed observations support local claims without proving broader claims.
+The initial meaning interface supports bounded English and structured teaching;
+free-prose compilation, learned perception and unrestricted language remain deferred.
+See [MEANING](MEANING.md) and [MEANING_API](MEANING_API.md).
+
+Two minimal cornerstone additions support this: public atomic multi-call transactions
+and exact category reflection in taught programs. Revisions, namespaces, inherited
+constraints, production receipts and native persistence retain their previous contracts.
+Checkpoint format 2 adds meaning logits and restores the original neural format 1.
 
 ## Cost and concurrency
 

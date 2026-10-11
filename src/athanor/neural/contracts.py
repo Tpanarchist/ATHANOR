@@ -144,6 +144,7 @@ class ModelOutput:
     operation_index: int
     argument_indices: tuple[int, ...]
     activation: Activation
+    meaning_logits: Tensor | None = None
 
 
 def empty_activation(width: int) -> Activation:

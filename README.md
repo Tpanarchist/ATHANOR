@@ -17,7 +17,9 @@ and persistence. Goal 002 integrates a trainable recurrent neural observer: shar
 structural encoding, learned operation/argument pointers, persistent activation,
 measured self-observations, supervised training, and resumable checkpoints. Inference
 uses local learned parameters and exact installed procedures. No external AI is in
-the execution path.
+the execution path. Goal 003 adds bounded learned language interpretation, durable
+meaning conventions, contextual alternatives, validated conceptual teaching,
+attributed observation grounding, correction and offline lesson import.
 
 ## Install and run (Python 3.14)
 
@@ -27,6 +29,7 @@ From `E:\ATHANOR` in PowerShell, with Python 3.14 installed:
 uv sync --locked --extra dev --extra neural --python 3.14 --cache-dir .tools\uv-cache
 .venv\Scripts\athanor-demo.exe --save artifacts\cornerstone.json
 .venv\Scripts\athanor-neural-demo.exe --save artifacts\neural-observer.athanor
+.venv\Scripts\athanor-meaning-demo.exe --base-checkpoint artifacts\neural-observer.athanor --save artifacts\meaning-observer.athanor
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\ruff.exe check .
 .venv\Scripts\ruff.exe format --check .
@@ -68,6 +71,49 @@ For a new request, create ordinary cornerstone data containing its structured co
 and call `observer.observe(Observation(request_ref, offered_argument_refs))`. The
 adapter supplies context and candidates; learned pointers select the operation and
 ordered arguments. The exact kernel validates them. See the neural API for contracts.
+
+## Teaching and using meaning (0.3.0)
+
+The meaning demonstration extends Goal 002's trained shared recurrent model on two
+concept families: exact quantities and observed participants/categories. Without
+`--base-checkpoint`, it reproducibly trains the Goal 002 prerequisite first.
+It measures learned meaning, operation and ordered argument pointers before applying
+evidence safeguards. It then installs a composed procedure and new specialization
+with weights unchanged, uses synonyms, resolves context, corrects a convention,
+checks unknown/conflicting knowledge, and restores/continues the observer.
+
+```powershell
+.venv\Scripts\python.exe -m athanor.semantics.demo --base-checkpoint artifacts\neural-observer.athanor --save artifacts\meaning-observer.athanor
+.venv\Scripts\athanor-meaning-demo.exe --resume artifacts\meaning-observer.athanor --epochs 1 --save artifacts\meaning-continued.athanor
+```
+
+Local inference uses the acquired knowledge and trained parameters:
+
+```python
+from athanor.semantics.observer import SemanticObserver
+
+observer, _ = SemanticObserver.restore("artifacts/meaning-observer.athanor")
+meaning = observer.interpret("subtract 3 from 17")
+print(meaning.status, meaning.meanings, meaning.decision.proposal)
+feedback = observer.act()  # Exact execution, result receipt and measured self-map update.
+if feedback.result is not None:
+    print(observer.observer.knowledge.get(feedback.result).fields)
+observer.save("artifacts/my-meaning.athanor")
+```
+
+`Teacher` and `Lexicon` are independently usable without PyTorch. A complete definition
+includes an installed procedure, interfaces, aliases and checked exact examples.
+Teaching modifies native structures; neural training is a separate explicit action.
+Definition prose alone does not compile an algorithm. A prepared external-AI JSON
+lesson is validated offline and is never consulted during inference:
+
+```powershell
+.venv\Scripts\athanor-teach.exe lesson.json --knowledge knowledge.json --save taught.json
+```
+
+The runnable demo exports its actual prepared lesson and native knowledge alongside
+the combined checkpoint and measured report. See [meaning contracts](docs/MEANING.md)
+and [semantic API, vocabulary and lesson format](docs/MEANING_API.md).
 
 ## What the demonstration establishes
 
@@ -128,12 +174,16 @@ import/unification between lineages needs a future explicit protocol.
 - [Neural integration design and critical review](docs/NEURAL_OBSERVER.md)
 - [Training, inference, feedback and checkpoint API](docs/NEURAL_API.md)
 - [Verification evidence and requirement coverage](docs/VALIDATION.md)
+- [Meaning architecture and critical review](docs/MEANING.md)
+- [Semantic teaching, language and offline lesson API](docs/MEANING_API.md)
 
 `values` and `contracts` define representation; `store` enforces invariants;
 `programs` evaluates taught procedure data; `kernel` exposes the small public API;
 `persistence` saves validated snapshots; `demo` exercises the foundation. Tests live
 outside the installable package. The optional `neural` package contains the shared
 encoder/model, observer boundary, curriculum/trainer, checkpoint format, and learning demo.
+`semantics` supplies native lexical/teaching/grounding data and the optional learned
+language observer, two-family curriculum and integrated demonstration.
 
 ## Limits that matter
 
@@ -142,9 +192,11 @@ exact proposal accuracy improved from 0% to 95.31% on 128 held-out situations; o
 selection and insufficiency abstention reached 100%. Six proposals still bound an
 argument incorrectly. A separate 48-case new-definition set reached 100% exact
 proposals. These are curriculum results, not evidence of open-domain intelligence.
-Natural-language teaching, perception, grounded semantics, calibrated open-world
-uncertainty, unrestricted continual learning, and autonomous self-improvement remain
-unimplemented. Preference correction is explicit structured instruction.
+Goal 003 adds bounded language use and structured conceptual teaching, with explicit
+observation attribution. Open-domain language teaching, learned perception, calibrated
+open-world uncertainty, unrestricted continual learning, and autonomous self-improvement
+remain unimplemented. Corrections are explicit instruction; no subjective experience
+is claimed. The Goal 002 results above describe its original curriculum separately.
 
 Schemas and definitions are immutable; revised definitions get new identities.
 Inheritance rejects conflicting field contracts rather than implementing override

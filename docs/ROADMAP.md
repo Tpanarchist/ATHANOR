@@ -18,15 +18,17 @@ in Goal 001. Evidence is bounded held-out proposal learning, real kernel feedbac
 explicit preference correction, post-training teaching, and resumed computation/training.
 See NEURAL_OBSERVER and VALIDATION for results and remaining binding errors.
 
-## 003: Grounded observations and broader structural competence
+## 003: Meaning, teaching and grounding — implemented
 
-Specify external observation/effect receipts and mappings to local references. Add
-domain adapters without embedding task selectors inside them. Extend curriculum beyond
-direct intention claims: inherited relationships, competing/contradictory evidence,
-longer compositions, changing observations, temporal context and procedure sequences.
-Evaluate actual proposal transfer and unknown-information handling. Resolve definition
-versioning/import/unification before broad knowledge ingestion. Keep teacher claims,
-observations, execution success and external effects separate.
+Bounded language observations connect attributed expression conventions to native
+concepts/operations and observed participants. Shared recurrent learned meaning,
+operation and ordered argument selection; explicit ambiguity/conflict/unknown states;
+atomic validated teaching; specialization; adopted corrections retaining old evidence;
+offline lesson preparation/import; scoped observation support; measured recognition
+and capability history; learned training and checkpoint continuation. Two-family
+operational transfer is exercised with newly installed concepts and fixed weights.
+See MEANING, MEANING_API and VALIDATION. This is bounded operational meaning, not
+open-domain language understanding or learned sensory perception.
 
 ## 004: Continual learning and calibrated capabilities
 
@@ -36,6 +38,9 @@ cross-task self-history. The existing checkpoint/optimizer can continue supervis
 training, but it does not establish unrestricted continual learning. Extend measured
 capabilities from kernel acceptance to externally observed outcomes. Preserve shared
 world/self processing; separate evaluative signals and explicit update policies.
+Extend grammar/role teaching beyond the bounded Goal 003 examples. Add externally
+authenticated observation/effect sources and appropriate empirical validation;
+resolve definition versioning/import/unification before broad knowledge ingestion.
 
 ## 005: Scalable activation and knowledge retention
 
@@ -62,5 +67,5 @@ headless operation, reproducible replay and resource accounting. Evaluate agency
 transfer, recovery and persistent learning after those interfaces exist.
 
 Each milestone needs contracts and working evidence before being called implemented.
-Natural-language/chat interfaces, large ingestion pipelines, autonomous architecture
-search, elaborate visuals and comparative benchmark campaigns remain outside Goal 002.
+Open-domain chat, large ingestion pipelines, autonomous architecture search, elaborate
+visuals and comparative benchmark campaigns remain outside the first three goals.

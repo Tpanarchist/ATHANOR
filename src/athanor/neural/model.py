@@ -159,6 +159,14 @@ class NeuralObserverModel(nn.Module):
             )
             candidates = torch.cat((operations, self.null.unsqueeze(0)), 0)
             operation_logits = self._scores(candidates, decoder)
+            meaning_logits = (
+                self._scores(
+                    torch.cat((field[list(frame.meaning_indices)], self.null.unsqueeze(0)), 0),
+                    decoder,
+                )
+                if frame.meaning_indices
+                else None
+            )
             operation_index = int(operation_logits.argmax().item())
             if teacher is not None:
                 operation_index = (
@@ -211,6 +219,7 @@ class NeuralObserverModel(nn.Module):
                         context[group],
                         rounds + (0 if state is None else state.steps),
                     ),
+                    meaning_logits,
                 )
             )
         return tuple(outputs)

@@ -21,6 +21,7 @@ returns that immutable snapshot; `get(ref.id)` explicitly requests the latest st
 | `teach_operation(name, procedure, source=...)` | Validates and installs an executable procedure structure. |
 | `bind(relation, source, target, evidence)` | Installs an attributed exact-endpoint claim. |
 | `execute(operation, arguments=(), limits=None)` | Runs a procedure with atomic nested publication. |
+| `transaction(work)` | Publishes all calls on the supplied staged kernel together; failure preserves knowledge, IDs and receipts. |
 | `distinguish(left, right)` | Separately reports identity/revision/state/fields/members/category/role differences. |
 | `ancestors(category)`, `schema(category)` | Resolves full ancestry and compatible inherited field contracts. |
 | `relations(subject, relation)` | Returns claim references with explicit inheritance paths; direct claims apply to exact revisions. |
@@ -84,6 +85,7 @@ teach a new definition under a new ID and explicitly adopt it.
 | `argument(index)` | Exact structure reference supplied at that input position. |
 | `field(of, name)`, `has_field(of, name)` | Read/test a record field or a referenced structure's fields. |
 | `members(of)` | Ordered exact references of a structure. |
+| `category(of)` | Exact category reference of a structure, or null if uncategorized. |
 | `item(of, index)` | Select a sequence item by nonnegative index. |
 | `binary(op, left, right)` | add/sub/mul/div on rationals; lt/le on rationals; type-aware eq on values. |
 | `choose(condition, then, otherwise)` | Exact boolean branch; only the selected expression executes. |
