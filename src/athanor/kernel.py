@@ -82,6 +82,19 @@ class Athanor:
             return tuple(self._store.get(receipt.result) for receipt in self._store.receipts)
 
     @property
+    def structure_count(self) -> int:
+        """Number of immutable published revisions, without materializing their history."""
+        with self._lock:
+            return len(self._store.receipts)
+
+    def structures_since(self, offset: int) -> tuple[Structure, ...]:
+        """Incremental index boundary; the offset counts published revisions."""
+        with self._lock:
+            if type(offset) is not int or not 0 <= offset <= len(self._store.receipts):
+                raise ValidationError("Invalid structural history offset")
+            return tuple(self._store.get(r.result) for r in self._store.receipts[offset:])
+
+    @property
     def receipts(self) -> tuple[Receipt, ...]:
         with self._lock:
             return tuple(self._store.receipts)

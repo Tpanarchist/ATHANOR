@@ -180,6 +180,7 @@ class Observer:
         self.knowledge = knowledge
         self.model = model
         self.builder = GraphBuilder(model.config)
+        self.active_operations: tuple[Ref, ...] | None = None
         self.self_ref = (
             self_ref
             if self_ref is not None
@@ -214,7 +215,11 @@ class Observer:
         if self.observation is None:
             raise ValidationError("Internal refinement needs an existing observation")
         frame = self.builder.build(
-            self.knowledge, self.observation, self_refs=tuple(self.self_map), observer=self.self_ref
+            self.knowledge,
+            self.observation,
+            self_refs=tuple(self.self_map),
+            observer=self.self_ref,
+            operations=self.active_operations,
         )
         was_training = self.model.training
         self.model.eval()

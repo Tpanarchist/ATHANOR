@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "athanor"
-version = "0.4.0"
+version = "0.5.0"
 description = "ATHANOR's structural foundation, teachable recurrent intelligence and grounded observer"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -21,6 +21,7 @@ athanor-meaning-demo = "athanor.semantics.demo:main"
 athanor-teach = "athanor.semantics.lessons:main"
 athanor-grounded-demo = "athanor.grounded.demo:main"
 athanor-world = "athanor.grounded.app:main"
+athanor-discovery-demo = "athanor.grounded.discovery_demo:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

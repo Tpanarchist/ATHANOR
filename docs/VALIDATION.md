@@ -1,7 +1,83 @@
-# ATHANOR Goals 001–004 — verified implementation
+# ATHANOR Goals 001–005 — verified implementation
 
 Date: 2026-10-11. Windows, CPython 3.14.6, PyTorch 2.14.1+cpu.
 The core and world remain independently usable without PyTorch.
+
+## Goal 005 autonomous discovery and continual learning
+
+Version 0.5.0 reuses the structural encoder, recurrent field and shared scorer for
+experiment selection. No neural parameter module was added for inquiry. The public
+acceptance run restores the Goal 004 observer and optimizer, teaches general inquiry
+priorities, then enters a territory whose interaction response was not supplied to
+the observer. Only restricted camera/body consequences inform acquisition.
+
+The contact investigation permits `interact` and `wait`; the model selects their
+order, including passive controls. Continued capability inquiry permits all ten
+existing motor actions. These bounds are explicit experiment constraints. There is
+no prescribed action sequence or controller supplying the environmental answer.
+
+Measured results in `artifacts/discovery-observer.report.json`:
+
+| Measurement | Result |
+| --- | --- |
+| Untaught territory response, held only by world authority | 0.12 |
+| Learned camera-derived effect after three interactions and passive controls | (0, 0.00049024, 0.12292990) |
+| Dispersion of initial effect samples | 0.01428286 |
+| Acquired native knowledge | Conditional executable procedure and relationship, with hypothesis/evidence references |
+| Prediction error in changed arrangement | 0.01259135 camera-coordinate units |
+| Automatic acquired-procedure reuse | Native predictions attached to new experiment candidates |
+| Continued neural consolidation | Four updates; shared encoder/message/recurrent/scorer parameters changed |
+| Held-out structural proposals and abstention, 48 mixed cases | 100% before inquiry teaching, after teaching and after continued learning |
+| Held-out semantic proposals, meanings and ordered roles, 48 mixed cases | 100% at all three stages |
+| Checkpoint continuation | Next four decisions, native knowledge, world state, parameters and optimizer continuation match |
+| Generic synthetic inquiry priority accuracy | 62.5% after 1,600 teaching updates |
+
+Structural exact-result/executable rates are 19/48 overall because the set includes
+29 intentional abstention cases; complete expected proposals are 48/48. Priority
+accuracy is a separate measurement, not a calibrated uncertainty or general planning
+guarantee. The acquired operation predicts a bounded conditional constant effect,
+requires matching appearance and measured input bounds, and returns unknown outside
+its scope. Contradictions qualify the hypothesis and withhold current reuse while
+preserving historical procedures and evidence.
+
+Eighteen focused discovery tests exercise provisional evidence, passive comparisons,
+conflicts, unavailable sensing, native execution, budgets, neural abstention, identical
+observations with different hidden physics, action-name-independent priority encoding,
+capability feedback, pure viewer inspection, invalid rehashed checkpoints and indexed
+activation. The acceptance integration test includes transfer, retained competence,
+shared parameter updates and restore across an optimizer boundary. Existing grounded
+contracts also pass all 20 tests. The 0.5.0 wheel and source distribution build
+successfully; the viewer and headless coordinator use the same runtime.
+
+After the final interface-focus and passive-conflict fixes, all 164 checks, including
+the discovery integration acceptance, pass in 19.814 seconds. The repository contains
+167 named tests, including three longer prerequisite learning acceptances. Ruff
+lint/format, strict mypy (40 source files) and Git whitespace checks pass. A separate
+installed-wheel environment restores acquired knowledge, executes an autonomous action,
+saves/restores again and matches the next decision. Every packaged Python/viewer source
+matches the workspace, and the source archive includes the new documentation/tests.
+Without PyTorch, the installed wheel passes all 93 foundation/world tests and explicitly
+skips the 74 optional neural tests.
+
+The complete regression run passed all 165 tests present when it started in
+1,693.400 seconds, including fresh Goal 002, 003 and 004 learning acceptances.
+The final 164-check run includes the two subsequently added interface-focus and
+passive-conflict regressions. Their combined coverage is all 167 current named tests;
+`artifacts/goal005-coverage.json` records the explicit coverage sets. No prerequisite
+training acceptance is omitted from this coverage.
+
+Reproduce the integrated run:
+
+```powershell
+.venv\Scripts\python.exe -m athanor.grounded.discovery_demo
+.venv\Scripts\python.exe -m athanor.grounded.app --checkpoint artifacts\discovery-observer.athanor --paused
+.venv\Scripts\python.exe -m athanor.grounded.app --checkpoint artifacts\discovery-observer.athanor --headless --steps 5 --explore --focus interface
+```
+
+See `DISCOVERY_API.md`, `DISCOVERY_TRAINING.md` and `AUTONOMOUS_DISCOVERY.md` for the
+runtime controls, evidence contract and induction limits. This run establishes bounded
+functional acquisition and continuation. It does not establish arbitrary nonlinear
+law discovery, universal causal explanations or indefinite retention.
 
 ## Goal 004 grounded learning and operational evidence
 
@@ -85,7 +161,7 @@ reproduces the original neural logits; further training resumes bitwise in the f
 optimizer test. Archive version 2 adds exact inference-input preservation and reads
 the earlier Goal 004 format 1. Goal 001–003 checkpoint formats remain readable.
 
-Validation covers **all 149 named current tests**: a regression run passed 146 tests,
+Goal 004 validation covered **all 149 named tests at that milestone**: a regression run passed 146 tests,
 including both original full learning acceptances; after final contract changes a
 fresh run passed all 146 current non-training contracts; the fresh complete Goal 004
 training acceptance passed in 1171.870 seconds. Combined named-test coverage is

@@ -20,6 +20,7 @@ from athanor.neural.encoding import Frame
 from athanor.world import SensorFrame, World
 from athanor.world.engine import ACTIONS
 
+from .discovery import Discovery
 from .perception import SensoryEncoder, perceive
 from .runtime import GroundedObserver, PixelObserver, Runtime, Track, contextual_frame
 from .training import GroundedTrainer
@@ -59,6 +60,7 @@ def finite(value: object) -> bool:
 
 
 def save(runtime: Runtime, path: str | Path, *, trainer: GroundedTrainer | None = None) -> None:
+    trainer = runtime.discovery_trainer if trainer is None else trainer
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     grounded = runtime.observer
@@ -113,7 +115,8 @@ def save(runtime: Runtime, path: str | Path, *, trainer: GroundedTrainer | None 
             payload,
         )
         metadata = {
-            "version": 2,
+            "version": 3,
+            "discovery": grounded.discovery.metadata(),
             "transition": transition_meta,
             "operations": {k: ref_data(v) for k, v in grounded.operations.items()},
             "target_anchor": ref_data(grounded.target_anchor),
@@ -206,11 +209,13 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             "paused",
             "running",
         }
+        if metadata.get("version") == 3:
+            expected_metadata.add("discovery")
         if (
             type(metadata) is not dict
             or set(metadata) != expected_metadata
             or type(metadata["version"]) is not int
-            or metadata["version"] not in (1, 2)
+            or metadata["version"] not in (1, 2, 3)
         ):
             raise PersistenceError("Unsupported grounded checkpoint version")
         if (
@@ -233,7 +238,7 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             io.BytesIO(members["sensory.pt"]), map_location="cpu", weights_only=True
         )
         expected_payload = {"parameters", "trainable", "optimizer", "rng", "updates", "transition"}
-        if metadata["version"] == 2:
+        if metadata["version"] >= 2:
             expected_payload.add("inference_prior")
         if set(payload) != expected_payload:
             raise PersistenceError("Malformed sensory training state")
@@ -268,7 +273,7 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             return result
 
         pixel.input_state = observer.state.detached()
-        if metadata["version"] == 2:
+        if metadata["version"] >= 2:
             saved_prior = payload["inference_prior"]
             if (
                 set(saved_prior) != {"refs", "field", "context", "steps"}
@@ -347,6 +352,11 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
                 sensor["executed"],
             )
         grounded.last_percepts = () if pixel.sensor is None else perceive(sensory, pixel.sensor)
+        grounded.discovery = (
+            Discovery.restore(grounded, metadata["discovery"])
+            if metadata["version"] == 3
+            else Discovery(grounded)
+        )
         if pixel._frame is not None and pixel.sensor is not None:
             pixel._frame = contextual_frame(pixel._frame, pixel.knowledge)
         runtime = object.__new__(Runtime)
@@ -437,6 +447,7 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             trainer.rng.setstate(payload["rng"])
             assert type(payload["updates"]) is int
             trainer.updates = payload["updates"]
+        runtime.discovery_trainer = trainer
         return runtime, trainer
     except PersistenceError:
         raise

@@ -24,7 +24,7 @@ execution receipts / rejections → typed feedback / operational self-map (Goal 
                     ↓
 supervised meaning + structural parameter updates / checkpoints (Goals 002/003)
 learned sensory activation / physical prediction / grounded feedback (Goal 004)
-broader calibration / continual learning / scalable activation (future)
+native autonomous inquiry / empirical induction / continued consolidation (Goal 005)
 ```
 
 The kernel owns computational admissibility, not truth. Knowledge is represented in
@@ -163,8 +163,11 @@ need separate controls before accepting untrusted remote input.
 
 Neural features use fixed-size signed hash bins, so token collisions and compressed
 number descriptors lose information. Exact values remain in the cornerstone. Active
-graph construction follows references and incident claims; it currently scans all
-knowledge and includes all installed operations. Graph closure can exceed the explicit
+graph construction follows references and incident claims through an incremental
+index of committed revisions. The default candidate contract includes all installed
+operations; grounded inquiry supplies an explicit relevant motor scope. Audit-only
+discovery links remain inspectable in durable knowledge but outside active graph views.
+Graph closure can exceed the explicit
 node budget, in which case processing fails rather than silently discarding knowledge.
 For N active nodes, E reference edges, width D and K steps, recurrent work is roughly
 O(K(N+E)D²), with O(ND+ED) activation memory per step (training retains K steps).
@@ -172,3 +175,21 @@ The bounded active self-history does not delete durable self-observations. Cross
 retention/interference, evidence conflict and relation inheritance have not received a
 general neural competence guarantee. These are next integration questions, not reasons
 to weaken exact cornerstone invariants.
+
+## Goal 005 integration
+
+The grounded observer constructs native inquiries, hypotheses and experiments. The
+existing structural encoder/shared scorer, conditioned by the recurrent field, selects
+informative motor actions. Restricted consequences revise zero/constant-effect alternatives
+for world, self and interface channels. Repeated evidence/passive controls permit exact
+native procedure construction from measured coefficients. Fresh observations activate and
+execute acquired predictions. New measured contexts can prompt further checks; unavailable
+measurements remain unknown and conflicting evidence qualifies current reuse.
+
+Fast adaptation, durable knowledge consolidation and slower shared parameter updates have
+different policies. The existing optimizer learns from consequences with proposal retention
+and bounded drift. Complete checkpoints retain controls/evidence/optimizer continuation.
+Incremental indexes and explicit procedure scopes avoid repeated full-library activation
+scans. Durable audit references stay outside compact active views without changing native
+provenance. The default operation-candidate contract remains compatible. See DISCOVERY_API,
+DISCOVERY_TRAINING and AUTONOMOUS_DISCOVERY for precise boundaries and reproducible operation.

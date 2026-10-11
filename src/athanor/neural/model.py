@@ -187,6 +187,14 @@ class NeuralObserverModel(nn.Module):
             )
             candidates = torch.cat((operations, self.null.unsqueeze(0)), 0)
             operation_logits = self._scores(candidates, decoder)
+            score_trace = [(candidates, decoder)]
+            if frame.meaning_indices:
+                score_trace.append(
+                    (
+                        torch.cat((field[list(frame.meaning_indices)], self.null.unsqueeze(0)), 0),
+                        decoder,
+                    )
+                )
             meaning_logits = (
                 self._scores(
                     torch.cat((field[list(frame.meaning_indices)], self.null.unsqueeze(0)), 0),
@@ -224,6 +232,7 @@ class NeuralObserverModel(nn.Module):
                     ),
                 )
                 logits = self._scores(pool, decoder)
+                score_trace.append((pool, decoder))
                 index = int(logits.argmax().item())
                 if teacher is not None:
                     index = frame.candidates.index(teacher.arguments[slot])
@@ -248,6 +257,7 @@ class NeuralObserverModel(nn.Module):
                         rounds + (0 if state is None else state.steps),
                     ),
                     meaning_logits,
+                    tuple(score_trace),
                 )
             )
         return tuple(outputs)

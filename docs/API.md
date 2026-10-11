@@ -1,5 +1,9 @@
 # ATHANOR Goal 001 — public contracts
 
+For autonomous learning/control and continued optimization, see [DISCOVERY_API](DISCOVERY_API.md)
+and [DISCOVERY_TRAINING](DISCOVERY_TRAINING.md). `structure_count` and
+`structures_since(offset)` expose incremental immutable history without a full scan.
+
 ## Knowledge store
 
 `Athanor(namespace=None)` creates an independent store. The default namespace is a

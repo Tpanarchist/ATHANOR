@@ -44,17 +44,15 @@ See GROUNDED_OBSERVER, GROUNDED_API and VALIDATION. The original language and
 mathematical/categorical paths remain available. This is bounded embodied learning,
 not a general learned causal theory or full digital universe.
 
-## 005: Continual learning and calibrated capabilities
+## 005: Autonomous discovery and continual learning — implemented
 
-Define controlled updates from instruction, demonstration, observation and consequence.
-Test retention, interference, conflict, calibrated uncertainty, safe abstention and
-cross-task self-history. The existing checkpoint/optimizer can continue supervised
-training, but it does not establish unrestricted continual learning. Extend measured
-capabilities from kernel acceptance to externally observed outcomes. Preserve shared
-world/self processing; separate evaluative signals and explicit update policies.
-Extend grammar/role teaching beyond the bounded Goal 003 examples. Add externally
-authenticated observation/effect sources and appropriate empirical validation;
-resolve definition versioning/import/unification before broad knowledge ingestion.
+Bounded model-ranked inquiry, native alternative hypotheses and evidence revisions,
+conditional executable knowledge from untaught consequences, transfer checks, dynamic
+capability/interface feedback, periodic shared parameter updates, selective indexed
+activation, viewer/headless controls and optimizer/checkpoint continuation. See
+AUTONOMOUS_DISCOVERY, DISCOVERY_API and DISCOVERY_TRAINING. Initial induction covers zero
+and conditional constant effects. Arbitrary nonlinear laws, calibrated uncertainty,
+authenticated external observations and general interference guarantees remain future work.
 
 ## 006: Scalable activation and knowledge retention
 

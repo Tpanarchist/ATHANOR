@@ -21,7 +21,7 @@ from .model import NeuralObserverModel
 from .observer import Observer
 from .training import Trainer, TrainingConfig
 
-VERSION = 2
+VERSION = 3
 
 
 def _ref(ref: Ref) -> list[str | int]:
@@ -62,6 +62,7 @@ def save_checkpoint(observer: Observer, path: Path, *, trainer: Trainer | None =
             observer.observation,
             self_refs=tuple(observer.self_map),
             observer=observer.self_ref,
+            operations=observer.active_operations,
         )
         if current.refs != observer.state.refs:
             raise PersistenceError("Process the current observation after teaching before saving")
@@ -94,7 +95,10 @@ def save_checkpoint(observer: Observer, path: Path, *, trainer: Trainer | None =
     knowledge_bytes = observer.knowledge.dumps().encode("utf-8")
     observation = observer.observation
     metadata = {
-        "version": VERSION,
+        "version": 2 if observer.active_operations is None else VERSION,
+        "active_operations": None
+        if observer.active_operations is None
+        else [_ref(ref) for ref in observer.active_operations],
         "model": asdict(observer.model.config),
         "training": None
         if trainer is None
@@ -119,6 +123,8 @@ def save_checkpoint(observer: Observer, path: Path, *, trainer: Trainer | None =
             "tensors.pt": hashlib.sha256(tensor_bytes).hexdigest(),
         },
     }
+    if observer.active_operations is None:
+        metadata.pop("active_operations")
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary: str | None = None
     try:
@@ -154,21 +160,24 @@ def restore_checkpoint(path: Path) -> tuple[Observer, Trainer | None]:
             metadata = json.loads(archive.read("metadata.json"))
             if (
                 set(metadata)
-                != {
-                    "version",
-                    "model",
-                    "training",
-                    "self",
-                    "self_map",
-                    "state_refs",
-                    "steps",
-                    "activation_history",
-                    "capabilities",
-                    "observation",
-                    "hashes",
-                }
+                != (
+                    {
+                        "version",
+                        "model",
+                        "training",
+                        "self",
+                        "self_map",
+                        "state_refs",
+                        "steps",
+                        "activation_history",
+                        "capabilities",
+                        "observation",
+                        "hashes",
+                    }
+                    | ({"active_operations"} if metadata.get("version") == 3 else set())
+                )
                 or type(metadata["version"]) is not int
-                or metadata["version"] not in (1, VERSION)
+                or metadata["version"] not in (1, 2, VERSION)
             ):
                 raise PersistenceError("Unsupported checkpoint metadata")
             data = {name: archive.read(name) for name in ("knowledge.json", "tensors.pt")}
@@ -199,6 +208,10 @@ def restore_checkpoint(path: Path) -> tuple[Observer, Trainer | None]:
         model.load_state_dict(payload["parameters"], strict=True)
         model.eval()
         observer = Observer(knowledge, model, self_ref=_read_ref(metadata["self"], knowledge))
+        if metadata["version"] == 3 and metadata["active_operations"] is not None:
+            observer.active_operations = tuple(
+                _read_ref(value, knowledge) for value in metadata["active_operations"]
+            )
         refs = tuple(_read_ref(value, knowledge) for value in metadata["state_refs"])
         if (
             len(set(refs)) != len(refs)
@@ -250,6 +263,7 @@ def restore_checkpoint(path: Path) -> tuple[Observer, Trainer | None]:
                 observer.observation,
                 self_refs=tuple(observer.self_map),
                 observer=observer.self_ref,
+                operations=observer.active_operations,
             )
             if frame.refs != refs:
                 raise PersistenceError("Saved activations disagree with reconstructed graph")

@@ -36,16 +36,17 @@ class Application:
     ) -> None:
         self.runtime, self.checkpoint = runtime, checkpoint
         self.trainer = GroundedTrainer(runtime.observer) if trainer is None else trainer
+        runtime.discovery_trainer = self.trainer
         self.last_step: dict[str, object] | None = None
         self.lock = threading.RLock()
 
     def state(self) -> dict[str, object]:
         with self.lock:
             r, o = self.runtime, self.runtime.observer
-            action, decision = o.propose()
+            action, decision = o.propose(commit=False)
             sensor = o.observer.sensor
             return {
-                "version": "0.4.0",
+                "version": "0.5.0",
                 "tick": r.world.tick,
                 "paused": r.paused,
                 "running": r.running,
@@ -97,6 +98,34 @@ class Application:
                 "self_map": [
                     json_value(o.knowledge.get(ref).fields) for ref in o.observer.self_map[-4:]
                 ],
+                "discovery": {
+                    "status": o.discovery.status,
+                    "focus": o.discovery.focus,
+                    "remaining": o.discovery.budget - o.discovery.spent,
+                    "spent": o.discovery.spent,
+                    "priority_trained": o.discovery.priority_trained,
+                    "learning": o.discovery.learning,
+                    "neural_updates": o.discovery.neural_updates,
+                    "hypotheses": [
+                        json_value(o.knowledge.get(v.hypothesis).fields)
+                        for v in o.discovery.estimates.values()
+                        if v.hypothesis is not None
+                    ],
+                    "experiments": [
+                        json_value(o.knowledge.get(v).fields) for v in o.discovery.options
+                    ],
+                    "scores": o.discovery.last_scores,
+                    "selected": json_value(o.discovery.selected),
+                    "knowledge": [
+                        json_value(o.knowledge.get(v.relationship).fields)
+                        for v in o.discovery.estimates.values()
+                        if v.relationship is not None
+                    ],
+                    "evidence": [
+                        json_value(o.knowledge.get(v).fields) for v in o.discovery.history[-8:]
+                    ],
+                    "activation": o.observer.activation_history[-1:],
+                },
             }
 
     def command(self, data: dict[str, object]) -> dict[str, object]:
@@ -108,10 +137,41 @@ class Application:
             message = "Runtime updated"
             if op == "start":
                 r.running, r.paused = True, False
+                if r.observer.discovery.status == "paused":
+                    r.observer.discovery.resume()
             elif op == "stop":
                 r.running, r.paused = False, True
+                r.observer.discovery.stop()
             elif op == "pause":
                 r.paused = True
+                r.observer.discovery.pause()
+            elif op in {"explore", "investigate"}:
+                budget = data.get("budget", 24)
+                if type(budget) is not int:
+                    raise ValidationError("Investigation budget must be an integer")
+                focus = data.get("focus") if op == "investigate" else None
+                if focus is not None and type(focus) is not str:
+                    raise ValidationError("Investigation focus must be a channel name")
+                r.start_discovery(budget, focus=focus)
+                message = "Autonomous inquiry started with a bounded action budget"
+            elif op == "resume":
+                r.observer.discovery.resume()
+                r.running, r.paused = True, False
+                message = "Resumed inquiry with its retained knowledge and remaining budget"
+            elif op == "stop_inquiry":
+                r.observer.discovery.stop()
+                r.paused = True
+            elif op == "pause_learning":
+                r.observer.discovery.learning = False
+                message = "Neural consolidation paused; evidence remains observable"
+            elif op == "resume_learning":
+                r.observer.discovery.learning = True
+                message = "Continual neural consolidation resumed"
+            elif op == "train_inquiry":
+                from .training import train_inquiry
+
+                result = train_inquiry(r.observer)
+                message = f"Learned general experimental priorities: {result}"
             elif op == "think":
                 r.observer.observer.think()
                 message = "Refined current activation without advancing the world"
@@ -119,8 +179,18 @@ class Application:
                 if op == "auto" and (r.paused or not r.running):
                     return {"message": "Paused"}
                 manual = Action(str(data["action"])) if op == "manual" else None
-                self.last_step = r.step(manual)
-                message = "External action executed" if manual else "Learned proposal executed"
+                self.last_step = (
+                    r.autonomous_step()
+                    if op == "auto" and r.observer.discovery.status != "stopped"
+                    else r.step(manual)
+                )
+                message = (
+                    "No action: " + str(self.last_step.get("reason", "inquiry paused"))
+                    if self.last_step.get("acted") is False
+                    else "External action executed"
+                    if manual
+                    else "Learned proposal executed"
+                )
             elif op == "instruct":
                 message = r.observer.instruct(str(data.get("text", "")))
                 r.observer.observe(r.world.sense())
@@ -141,6 +211,7 @@ class Application:
                 self.trainer = (
                     GroundedTrainer(self.runtime.observer) if trainer is None else trainer
                 )
+                self.runtime.discovery_trainer = self.trainer
                 self.last_step = None
                 message = "Restored complete state"
             elif op == "train":
@@ -211,16 +282,24 @@ def main() -> None:
     )
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--headless", action="store_true")
+    parser.add_argument("--paused", action="store_true", help="Open with inquiry execution paused")
     parser.add_argument("--steps", type=int, default=10)
+    parser.add_argument("--explore", action="store_true")
+    parser.add_argument("--focus", choices=("object", "self", "interface"))
     args = parser.parse_args()
     torch.set_num_threads(1)
     runtime, trainer = restore(args.checkpoint)
     application = Application(runtime, args.checkpoint, trainer)
+    if args.paused:
+        runtime.paused = True
+        runtime.observer.discovery.pause()
+    if args.explore:
+        runtime.start_discovery(max(1, args.steps), focus=args.focus)
     if args.headless:
         if args.steps < 0:
             parser.error("Steps must be nonnegative")
         for _ in range(args.steps):
-            application.command({"op": "step"})
+            application.command({"op": "auto" if args.explore else "step"})
         print(json.dumps(application.state(), indent=2))
     else:
         server = ThreadingHTTPServer(("127.0.0.1", args.port), handler(application))

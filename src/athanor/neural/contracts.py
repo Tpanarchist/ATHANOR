@@ -145,6 +145,7 @@ class ModelOutput:
     argument_indices: tuple[int, ...]
     activation: Activation
     meaning_logits: Tensor | None = None
+    score_trace: tuple[tuple[Tensor, Tensor], ...] = ()
 
 
 def empty_activation(width: int) -> Activation:

@@ -23,6 +23,24 @@ attributed observation grounding, correction and offline lesson import.
 Goal 004 connects that same recurrent intelligence to an independent persistent 3D
 world: raw stereo cameras, trained perception, grounded names, learned actions and
 consequence predictions, world/self uncertainty, complete checkpoints and a live viewer.
+Goal 005 adds autonomous investigation, native hypotheses and evidence revisions,
+independent acquisition of executable conditional relationships, continued neural learning,
+selective indexed activation and complete inquiry restoration. The same shared model
+selects experiments; camera/body consequences supply the learned relationship.
+
+To run the complete discovery and transfer demonstration after Goal 004 training:
+
+```powershell
+.venv\Scripts\python.exe -m athanor.grounded.discovery_demo
+.venv\Scripts\python.exe -m athanor.grounded.app --checkpoint artifacts\discovery-observer.athanor
+```
+
+The demo writes trained/continued checkpoints and a measured report under `artifacts`.
+The viewer exposes inquiry controls, alternatives, predictions, experiment reasons,
+acquired procedures, evidence, self-map and neural updates. See
+[Discovery API](docs/DISCOVERY_API.md), [training policy](docs/DISCOVERY_TRAINING.md),
+and [integration design](docs/AUTONOMOUS_DISCOVERY.md). The initial inductive family is
+conditional constant effects with explicit uncertainty and conflicts.
 
 ## Install and run (Python 3.14)
 

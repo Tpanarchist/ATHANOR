@@ -108,9 +108,22 @@ class SensorFrame:
 
 
 class World:
-    def __init__(self, *, namespace: str = "territory", resolution: int = 24) -> None:
+    def __init__(
+        self,
+        *,
+        namespace: str = "territory",
+        resolution: int = 24,
+        interaction_distance: float = 0.2,
+    ) -> None:
         if type(resolution) is not int or not 8 <= resolution <= 128:
             raise ValidationError("Invalid camera resolution")
+        if (
+            type(interaction_distance) not in (int, float)
+            or not math.isfinite(interaction_distance)
+            or not 0 <= interaction_distance <= 0.5
+        ):
+            raise ValidationError("Invalid bounded territory interaction response")
+        self.interaction_distance = float(interaction_distance)
         self.knowledge = Athanor(namespace=namespace)
         self.resolution = resolution
         self.bounds: Vec3 = (6, 3, 6)
@@ -306,7 +319,8 @@ class World:
                                 and distance(self.position, vector(node.fields["position"])) < 1.2
                             ):
                                 pushed = add(
-                                    vector(node.fields["position"]), rotate((0, 0, 0.2), self.yaw)
+                                    vector(node.fields["position"]),
+                                    rotate((0, 0, self.interaction_distance), self.yaw),
                                 )
                                 clear = not any(
                                     rigid_overlap(
@@ -427,7 +441,8 @@ class World:
 
         return json.dumps(
             {
-                "version": 1,
+                "version": 2,
+                "interaction_distance": self.interaction_distance,
                 "knowledge": self.knowledge.dumps(),
                 "resolution": self.resolution,
                 "bounds": self.bounds,
@@ -471,14 +486,19 @@ class World:
                 "executed",
                 "events",
             }
+            if isinstance(data, dict) and data.get("version") == 2:
+                expected.add("interaction_distance")
             if (
                 type(data) is not dict
                 or set(data) != expected
                 or type(data["version"]) is not int
-                or data["version"] != 1
+                or data["version"] not in (1, 2)
             ):
                 raise ValidationError("Unsupported world snapshot")
-            obj = cls(resolution=data["resolution"])
+            obj = cls(
+                resolution=data["resolution"],
+                interaction_distance=data.get("interaction_distance", 0.2),
+            )
             obj.knowledge = Athanor.loads(data["knowledge"])
 
             def ref(raw: list[object]) -> Ref:

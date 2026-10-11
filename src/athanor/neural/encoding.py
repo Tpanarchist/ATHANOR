@@ -2,22 +2,46 @@
 
 import hashlib
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from fractions import Fraction
 
 import torch
 from torch import Tensor
 
-from athanor import Athanor, Record, Ref, Role, Structure, ValidationError, Value
+from athanor import Athanor, Record, Ref, Role, Structure, ValidationError, Value, record
 from athanor.values import references
 
 from .contracts import ModelConfig, Observation
+from .index import KnowledgeIndex
 
 TOKEN_BINS = 256
 FEATURE_SIZE = len(Role) + 8 + TOKEN_BINS + 1
 EDGE_BINS = 32
 EDGE_SIZE = EDGE_BINS + 5
 _DISPLAY = frozenset({"name", "label", "source", "note", "error_message", "namespace"})
+
+
+def activation_view(node: Structure) -> Structure:
+    """Bound active audit history, while exact native structures stay untouched."""
+    if node.fields.get("kind") in {
+        "discovery_hypothesis",
+        "investigation_evidence",
+        "effect_measurement",
+        "acquired_relationship",
+    }:
+        audit = {
+            "support",
+            "contradictions",
+            "comparison",
+            "feedback",
+            "selected",
+            "experiment",
+            "evidence",
+        }
+        return replace(
+            node, fields=record({k: v for k, v in node.fields.items() if k not in audit})
+        )
+    return node
 
 
 def _add_token(vector: list[float], token: str, start: int, bins: int, scale: float = 1) -> None:
@@ -135,6 +159,7 @@ class Frame:
 class GraphBuilder:
     def __init__(self, config: ModelConfig) -> None:
         self.config = config
+        self.index = KnowledgeIndex()
 
     def build(
         self,
@@ -143,9 +168,14 @@ class GraphBuilder:
         *,
         self_refs: tuple[Ref, ...] = (),
         observer: Ref | None = None,
+        operations: tuple[Ref, ...] | None = None,
     ) -> Frame:
-        nodes = {node.ref: node for node in knowledge.structures}
-        operations = tuple(ref for ref, node in nodes.items() if node.role == Role.OPERATION)
+        self.index.sync(knowledge)
+        operations = tuple(self.index.operations) if operations is None else operations
+        if len(set(operations)) != len(operations) or any(
+            knowledge.get(ref).role != Role.OPERATION for ref in operations
+        ):
+            raise ValidationError("Active operations must be distinct installed procedures")
         seeds = [observation.ref, *observation.candidates, *operations, *self_refs]
         if observer is not None:
             seeds.append(observer)
@@ -156,7 +186,7 @@ class GraphBuilder:
                 ref = pending.pop()
                 if ref in selected:
                     continue
-                node = knowledge.get(ref)
+                node = activation_view(knowledge.get(ref))
                 selected[ref] = node
                 if len(selected) > self.config.max_nodes:
                     raise ValidationError("Active neural graph exceeds its explicit node budget")
@@ -171,11 +201,7 @@ class GraphBuilder:
         changed = True
         while changed:
             additions = [
-                ref
-                for ref, node in nodes.items()
-                if node.role == Role.CLAIM
-                and ref not in selected
-                and any(endpoint in selected for endpoint in references(node.fields))
+                ref for ref in self.index.related_claims(tuple(selected)) if ref not in selected
             ]
             changed = bool(additions)
             closure(list(reversed(additions)))

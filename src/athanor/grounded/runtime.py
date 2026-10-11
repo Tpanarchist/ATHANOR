@@ -3,7 +3,7 @@
 import hashlib
 from dataclasses import dataclass, replace
 from fractions import Fraction
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import torch
 
@@ -29,7 +29,11 @@ from athanor.values import as_ref, as_tuple
 from athanor.world import Action, SensorFrame, World
 from athanor.world.engine import ACTIONS, exact
 
+from .discovery import Discovery
 from .perception import Percept, SensoryEncoder, descriptor_distance, perceive, pixels
+
+if TYPE_CHECKING:
+    from .training import GroundedTrainer
 
 
 def install_map(namespace: str = "observer-map") -> tuple[Athanor, dict[str, Ref], Ref]:
@@ -110,6 +114,7 @@ class PixelObserver(Observer):
         self.sensory = sensory
         self.sensor: SensorFrame | None = None
         self.input_state = self.state.detached()
+        self.active_operations: tuple[Ref, ...] | None = None
 
     def think(self, *, steps: int | None = None) -> Decision:
         if self.sensor is None:
@@ -117,7 +122,11 @@ class PixelObserver(Observer):
         if self.observation is None:
             raise ValidationError("A sensory step requires a structural observation")
         frame = self.builder.build(
-            self.knowledge, self.observation, self_refs=tuple(self.self_map), observer=self.self_ref
+            self.knowledge,
+            self.observation,
+            self_refs=tuple(self.self_map),
+            observer=self.self_ref,
+            operations=self.active_operations,
         )
         frame = contextual_frame(frame, self.knowledge)
         self.model.eval()
@@ -222,6 +231,7 @@ class GroundedObserver:
             expressions=("near", "within reach"),
             roles=("perceived participant",),
         )
+        self.discovery = Discovery(self)
 
     @property
     def knowledge(self) -> Athanor:
@@ -410,6 +420,7 @@ class GroundedObserver:
     def observe(self, frame: SensorFrame) -> Decision:
         self.last_percepts = perceive(self.observer.sensory, frame)
         active = self._map(frame, self.last_percepts)
+        inquiries = self.discovery.prepare(frame)
         target = self._target_percept(self.last_percepts)
         values = request_fields(
             self.goal, target, contact=bool(frame.proprio[4]), width=frame.width
@@ -418,7 +429,8 @@ class GroundedObserver:
             tracks=active,
             target_concept=self.target,
             relationships=tuple(self.motion_evidence),
-            hypotheses=tuple(t.ref for t in self.tracks if t.status != "visible"),
+            hypotheses=tuple(t.ref for t in self.tracks if t.status != "visible") + inquiries,
+            inquiry_options=self.discovery.options,
         )
         self.last_request = self.knowledge.create(
             fields=values, source="restricted stereo sensory interface"
@@ -438,8 +450,12 @@ class GroundedObserver:
         decision = self.observer.observe(Observation(self.last_request, ()))
         return decision
 
-    def propose(self) -> tuple[Action, Decision]:
-        decision = self.observer.propose()
+    def propose(self, *, commit: bool = True) -> tuple[Action, Decision]:
+        decision = (
+            self.discovery.choose(commit=commit)
+            if self.discovery.status != "stopped"
+            else self.observer.propose()
+        )
         name = (
             "wait"
             if self.goal == "unknown"
@@ -457,12 +473,14 @@ class GroundedObserver:
         if output is None or sensor is None:
             raise ValidationError("Prediction requires an observed state")
         with torch.no_grad():
-            self.prediction = tuple(
+            prediction = tuple(
                 float(v)
                 for v in self.observer.sensory.predict(
                     output.activation.context, ACTIONS.index(name), torch.tensor(sensor.proprio)
                 )
             )
+        if commit:
+            self.prediction = prediction
         return Action(name), decision
 
     def command(self, decision: Decision) -> Ref | None:
@@ -599,7 +617,11 @@ class Runtime:
     """Coordinator alone owns territory. Model calls receive only restricted frames."""
 
     def __init__(
-        self, world: World | None = None, observer: GroundedObserver | None = None
+        self,
+        world: World | None = None,
+        observer: GroundedObserver | None = None,
+        *,
+        trainer: GroundedTrainer | None = None,
     ) -> None:
         self.world = World() if world is None else world
         self.observer = GroundedObserver() if observer is None else observer
@@ -609,12 +631,35 @@ class Runtime:
             tuple[SensorFrame, SensorFrame, str, Frame | None, Activation | None] | None
         ) = None
         self.observer.observe(self.world.sense())
+        if trainer is not None and trainer.observer is not self.observer:
+            raise ValidationError("Continual optimizer belongs to a different grounded observer")
+        self.discovery_trainer: GroundedTrainer | None = trainer
+
+    def start_discovery(
+        self, budget: int = 24, *, focus: str | None = None, allowed: tuple[str, ...] = ACTIONS
+    ) -> None:
+        self.observer.discovery.start(budget, focus=focus, allowed=allowed)
+        self.running, self.paused = True, False
+        self.observer.observe(self.world.sense())
+
+    def autonomous_step(self) -> dict[str, object]:
+        discovery = self.observer.discovery
+        if self.paused or not self.running or discovery.status != "running":
+            return {"acted": False, "reason": discovery.status, "paused": self.paused}
+        return self.step()
 
     def step(self, manual: Action | None = None) -> dict[str, object]:
+        discovery = self.observer.discovery
+        if manual is None and discovery.status not in {"stopped", "running"}:
+            return {"acted": False, "reason": discovery.status}
         before = self.world.sense()
         training_frame = self.observer.observer._frame
         training_state = self.observer.observer.input_state.detached()
         action, decision = self.observer.propose()
+        if manual is None and discovery.status == "running" and decision.proposal.operation is None:
+            discovery.pause()
+            self.paused = True
+            return {"acted": False, "reason": "neural abstention"}
         if manual is None:
             command = self.observer.command(decision)
             if command is not None:
@@ -640,8 +685,31 @@ class Runtime:
         after = self.world.sense()
         self.last_transition = (before, after, action.name, training_frame, training_state)
         feedback = self.observer.feedback(before, after, action.name, prediction)
+        discovery.ingest(before, after, action.name, feedback, autonomous=manual is None)
+        if (
+            manual is None
+            and discovery.learning
+            and discovery.status != "stopped"
+            and discovery.spent % discovery.consolidate_every == 0
+            and discovery.last_learned_tick != after.tick
+        ):
+            from .training import GroundedTrainer
+
+            if self.discovery_trainer is None:
+                self.discovery_trainer = GroundedTrainer(self.observer, learning_rate=0.0001)
+            self.discovery_trainer.consolidate_transition(
+                before,
+                after,
+                action.name,
+                frame=training_frame,
+                prior=training_state,
+                information_gain=discovery.gain,
+            )
+            discovery.neural_updates += 1
+            discovery.last_learned_tick = after.tick
         self.observer.observe(after)
         return {
+            "acted": True,
             "intended": action.name,
             "manual": manual is not None,
             "executed": after.executed,
@@ -649,4 +717,10 @@ class Runtime:
             "feedback": str(feedback),
             "prediction": prediction,
             "observed": physical_outcome(before, after),
+            "inquiry_status": discovery.status,
+            "experiment": None if discovery.selected is None else str(discovery.selected),
+            "evidence_gain": discovery.gain,
+            "decision_source": "shared neural experiment scorer"
+            if discovery.status != "stopped"
+            else "shared neural motor pointer",
         }

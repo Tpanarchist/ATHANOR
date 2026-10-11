@@ -9,14 +9,14 @@ import torch
 from torch import Tensor
 from torch.nn import functional as F
 
-from athanor import Ref, ValidationError
-from athanor.neural.contracts import Activation
+from athanor import Ref, ValidationError, record
+from athanor.neural.contracts import Activation, Observation
 from athanor.neural.curriculum import Lesson
-from athanor.neural.encoding import Frame
+from athanor.neural.encoding import Frame, GraphBuilder
 from athanor.neural.model import NeuralObserverModel
 from athanor.neural.training import Trainer
 from athanor.world import Action, SensorFrame, World
-from athanor.world.engine import ACTIONS
+from athanor.world.engine import ACTIONS, exact
 
 from .perception import SensoryEncoder, pixels
 from .runtime import GroundedObserver, intent_activation, physical_outcome
@@ -472,6 +472,164 @@ class GroundedTrainer:
         self.optimizer.step()
         self.updates += 1
         return float(loss.detach())
+
+    def consolidate_transition(
+        self,
+        before: SensorFrame,
+        after: SensorFrame,
+        action: str,
+        *,
+        frame: Frame | None,
+        prior: Activation | None,
+        information_gain: float,
+    ) -> float:
+        """Slow measured updates, with prior-proposal and parameter retention penalties."""
+        if frame is None or after.tick != before.tick + 1 or action not in ACTIONS:
+            raise ValidationError("Consolidation needs the original one-step experience")
+        observer = self.observer.observer
+        parameters = [*observer.model.parameters(), *observer.sensory.parameters()]
+        anchor = [p.detach().clone() for p in parameters]
+        with torch.no_grad():
+            embedding = observer.sensory.activation(
+                pixels(before),
+                torch.tensor(before.proprio),
+                intent_activation(observer.model, frame),
+            )
+            retained = observer.model([frame], [prior], sensory=[embedding])[0]
+            probabilities = retained.operation_logits.softmax(0)
+        embedding = observer.sensory.activation(
+            pixels(before), torch.tensor(before.proprio), intent_activation(observer.model, frame)
+        )
+        output = observer.model([frame], [prior], sensory=[embedding])[0]
+        predicted = observer.sensory.predict(
+            output.activation.context, ACTIONS.index(action), torch.tensor(before.proprio)
+        )
+        discrepancy = F.mse_loss(predicted, torch.tensor(physical_outcome(before, after)))
+        retention = F.kl_div(output.operation_logits.log_softmax(0), probabilities, reduction="sum")
+        # Exact knowledge acquisition and parameter adaptation have different policies.
+        # Information benefit is a measured behavioral preference, never a truth label.
+        priority_loss = torch.tensor(0.0)
+        discovery = self.observer.discovery
+        if discovery.selected is not None and discovery.selected in discovery.options:
+            logits, _ = discovery.rank()
+            index = discovery.options.index(discovery.selected)
+            priority_loss = -max(-1.0, min(1.0, information_gain)) * logits.log_softmax(0)[index]
+        loss = discrepancy + 2 * retention + 0.002 * priority_loss
+        self.optimizer.zero_grad()
+        torch.autograd.backward(loss)
+        torch.nn.utils.clip_grad_norm_(parameters, 1.0)
+        self.optimizer.step()
+        # Bound drift from one experience. No unrestricted self modification.
+        with torch.no_grad():
+            for parameter, original in zip(parameters, anchor, strict=True):
+                parameter.copy_(original + (parameter - original).clamp(-0.0002, 0.0002))
+        self.updates += 1
+        return float(loss.detach())
+
+
+def train_inquiry(
+    observer: GroundedObserver, *, steps: int = 1000, seed: int = 5005
+) -> dict[str, float]:
+    """Teach general experimental relevance, never a territory's unknown relationship.
+
+    Uses existing encoder and shared scorer; no new parameters/modules. Retain scorer
+    behavior on native structural/semantic and grounded proposal fields by distillation.
+    """
+    from athanor.neural.curriculum import situation
+    from athanor.semantics.curriculum import case
+
+    from .discovery import priority_vectors
+
+    if type(steps) is not int or steps < 1:
+        raise ValidationError("Inquiry training steps must be positive")
+    rng = random.Random(seed)
+    model = observer.observer.model
+    model.eval()
+    retained_vectors, retained_contexts, retained_scores = [], [], []
+    with torch.no_grad():
+        # Established competencies have no access to discovery-world authority.
+        for i in range(96):
+            if i % 2 == 0:
+                mode = ("valid", "unsupported", "missing", "incompatible", "correction")[
+                    (i // 2) % 5
+                ]
+                frame = situation(seed + i, mode=mode).frame(model.config)
+            else:
+                mode = ("valid", "alias", "unknown", "missing", "ambiguous", "context")[
+                    (i // 2) % 6
+                ]
+                semantic = case(seed + i, mode=mode)
+                frame = GraphBuilder(model.config).build(
+                    semantic.knowledge,
+                    Observation(semantic.utterance.ref, semantic.utterance.candidates),
+                    observer=semantic.refs["self"],
+                )
+            output = model([frame])[0]
+            for vectors, context in output.score_trace:
+                retained_vectors.append(vectors.detach())
+                retained_contexts.append(context.detach())
+                retained_scores.append(model._scores(vectors, context).detach())
+        if observer.observer._frame is not None and observer.observer._output is not None:
+            frame, output = observer.observer._frame, observer.observer._output
+            for vectors, context in output.score_trace:
+                retained_vectors.append(vectors.detach())
+                retained_contexts.append(context.detach())
+                retained_scores.append(model._scores(vectors, context).detach())
+    optimizer = torch.optim.AdamW(model.scorer.parameters(), lr=0.002, weight_decay=0.0001)
+    loss = torch.tensor(0.0)
+    correct = 0
+    options, targets = [], []
+    for _ in range(512):
+        utilities = []
+        for _ in range(5):
+            uncertainty = rng.choice((1.0, 0.5, 1 / 3, 0.25, 0.1))
+            relevance = rng.choice((1.0, 1.0, 0.25, 0.0))
+            benefit = rng.choice((1.0, 0.5, 0.05, 0.0))
+            reliability = rng.uniform(0.1, 1)
+            cost = rng.choice((0.1, 0.2, 0.5))
+            risk = rng.choice((0.05, 0.15, 0.5, 1.0))
+            options.append(
+                record(
+                    uncertainty=exact(uncertainty),
+                    relevance=exact(relevance),
+                    benefit=exact(benefit),
+                    reliability=exact(reliability),
+                    cost=exact(cost),
+                    risk=exact(risk),
+                )
+            )
+            utilities.append(
+                uncertainty * relevance * benefit * reliability - 0.1 * cost - 0.15 * risk
+            )
+        options.append(record(uncertainty=0, relevance=0, benefit=0, reliability=1, cost=0, risk=0))
+        utilities.append(0.0)
+        targets.append(max(range(6), key=lambda index: utilities[index]))
+    with torch.no_grad():
+        pool = priority_vectors(model, options).reshape(512, 6, -1)
+    labels = torch.tensor(targets)
+    for step in range(steps):
+        indices = [rng.randrange(512) for _ in range(32)]
+        vectors = pool[indices].reshape(32 * 6, -1)
+        context = retained_contexts[step % len(retained_contexts)] * 0.05
+        scores = model._scores(vectors, context).reshape(32, 6)
+        chosen = labels[indices]
+        selection = F.cross_entropy(scores, chosen)
+        retained = step % len(retained_vectors)
+        replay_scores = model._scores(retained_vectors[retained], retained_contexts[retained])
+        distillation = F.mse_loss(replay_scores, retained_scores[retained])
+        loss = selection + 2 * distillation
+        optimizer.zero_grad()
+        torch.autograd.backward(loss)
+        optimizer.step()
+        if step >= max(0, steps - 100):
+            correct += int((scores.argmax(1) == chosen).sum())
+    observer.discovery.priority_trained = True
+    return {
+        "loss": float(loss.detach()),
+        "priority_accuracy": correct / (32 * min(steps, 100)),
+        "updates": float(steps),
+        "new_parameter_modules": 0.0,
+    }
 
 
 def evaluate_actions(
