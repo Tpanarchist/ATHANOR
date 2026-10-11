@@ -171,6 +171,9 @@ class GroundedObserver:
         a, self.operations, self.target_anchor = install_map(namespace)
         self.observer = PixelObserver(a, model, sensory)
         self.tracks: list[Track] = []
+        from .processes import Processes
+
+        self.processes = Processes(self)
         self.goal = "observe"
         self.target: Ref | None = None
         self.prediction: tuple[float, ...] | None = None
@@ -429,7 +432,9 @@ class GroundedObserver:
             tracks=active,
             target_concept=self.target,
             relationships=tuple(self.motion_evidence),
-            hypotheses=tuple(t.ref for t in self.tracks if t.status != "visible") + inquiries,
+            hypotheses=tuple(t.ref for t in self.tracks if t.status != "visible")
+            + inquiries
+            + self.processes.active,
             inquiry_options=self.discovery.options,
         )
         self.last_request = self.knowledge.create(
@@ -648,6 +653,21 @@ class Runtime:
             return {"acted": False, "reason": discovery.status, "paused": self.paused}
         return self.step()
 
+    def start_process_discovery(
+        self, budget: int = 12, *, max_calls: int = 2, interface: str = "body"
+    ) -> None:
+        self.observer.processes.start(budget, max_calls=max_calls, interface=interface)
+        if interface == "numeric":
+            self.observer.discovery.pause()
+            self.paused = True
+            self.observer.observe(self.world.sense())
+            return
+        self.start_discovery(
+            budget,
+            focus="self" if interface == "body" else "object",
+            allowed=("wait", "forward" if interface == "body" else "interact"),
+        )
+
     def step(self, manual: Action | None = None) -> dict[str, object]:
         discovery = self.observer.discovery
         if manual is None and discovery.status not in {"stopped", "running"}:
@@ -686,6 +706,17 @@ class Runtime:
         self.last_transition = (before, after, action.name, training_frame, training_state)
         feedback = self.observer.feedback(before, after, action.name, prediction)
         discovery.ingest(before, after, action.name, feedback, autonomous=manual is None)
+        processes = self.observer.processes
+        acquired_process = None
+        previous_samples = len(processes.inputs)
+        processes.ingest(before, after, feedback)
+        if len(processes.inputs) > previous_samples and discovery.learning:
+            from .training import GroundedTrainer
+
+            if self.discovery_trainer is None:
+                self.discovery_trainer = GroundedTrainer(self.observer, learning_rate=0.0001)
+            processes.learn(self.discovery_trainer, steps=10)
+            acquired_process = processes.adopt()
         if (
             manual is None
             and discovery.learning
@@ -720,6 +751,7 @@ class Runtime:
             "inquiry_status": discovery.status,
             "experiment": None if discovery.selected is None else str(discovery.selected),
             "evidence_gain": discovery.gain,
+            "acquired_process": None if acquired_process is None else str(acquired_process),
             "decision_source": "shared neural experiment scorer"
             if discovery.status != "stopped"
             else "shared neural motor pointer",

@@ -61,6 +61,11 @@ def sequence(*expressions: Record) -> Record:
     return record(op="sequence", items=expressions)
 
 
+def record_expression(fields: Mapping[str, Record]) -> Record:
+    """Construct immutable native records from validated child expressions."""
+    return record(op="record", fields=fields)
+
+
 def variable(name: str) -> Record:
     """The fold body supplies item and acc; there are no hidden global variables."""
     return record(op="variable", name=name)
@@ -104,6 +109,7 @@ _KEYS = {
     "item": {"op", "of", "index"},
     "if": {"op", "condition", "then", "otherwise"},
     "sequence": {"op", "items"},
+    "record": {"op", "fields"},
     "variable": {"op", "name"},
     "fold": {"op", "items", "initial", "body"},
     "call": {"op", "operation", "arguments"},
@@ -149,6 +155,9 @@ def validate_expression(
             child(expression[key])
     elif op == "sequence":
         for raw in as_tuple(expression["items"]):
+            child(raw)
+    elif op == "record":
+        for raw in as_record(expression["fields"]).values():
             child(raw)
     elif op == "variable":
         if not in_fold or expression["name"] not in {"item", "acc"}:
@@ -220,6 +229,8 @@ class Evaluator:
             return sequence_values[index]
         if op == "sequence":
             return tuple(child(raw) for raw in as_tuple(expression["items"]))
+        if op == "record":
+            return record({key: child(raw) for key, raw in as_record(expression["fields"]).items()})
         if op == "if":
             condition = child(expression["condition"])
             if type(condition) is not bool:

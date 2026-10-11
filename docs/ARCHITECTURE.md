@@ -193,3 +193,27 @@ Incremental indexes and explicit procedure scopes avoid repeated full-library ac
 scans. Durable audit references stay outside compact active views without changing native
 provenance. The default operation-candidate contract remains compatible. See DISCOVERY_API,
 DISCOVERY_TRAINING and AUTONOMOUS_DISCOVERY for precise boundaries and reproducible operation.
+
+## Goal 006 integration
+
+`grounded.processes.Processes` extends existing inquiry without a new neural subsystem.
+Native typed call trees invoke pinned arithmetic, taught conditional/accumulated operations,
+or previously acquired processes. The same structural encoder and scorer rank candidates,
+experimental stimuli and typed interface correspondences using measured discrepancy and
+current recurrent context. Native hypotheses retain expression, dependency, scope, support,
+contradictions and revisions. The exact kernel remains the only evaluator.
+
+Input bindings project evidence-qualified numeric leaves. Output bindings reconstruct
+nested packets through the one added general native `record` expression, alongside existing
+sequence construction. This construct uses existing validation, execution budgets, atomic
+transactions and serialization. It supplies a concrete missing output-construction ability,
+not a parallel language. Interface adoption is atomic. Ambiguous selectors remain uncertain.
+
+Actual body/camera feedback feeds process comparison; numerical receipts use a different
+structured interface. Territory may own a native private motion law; only ordinary SensorFrame
+measurements reach the observer. Mathematically valid execution and physical applicability
+remain separate. Acquired-process references enter the constructor; invalidated dependencies
+qualify their acquired dependents and bindings without erasing pinned histories. Shared scorer
+training retains earlier proposal scores; dynamic self-map counts reflect actual measured
+recognition/binding/execution/transfer. Grounded format 4 retains these additions and restores
+formats 1–3 unchanged. See PROCESS_API for limits and operational contracts.

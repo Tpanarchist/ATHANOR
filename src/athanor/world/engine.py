@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import cast
 
-from athanor import Athanor, Endpoint, Procedure, Ref, Role, ValidationError, record
+from athanor import Athanor, Endpoint, Procedure, Record, Ref, Role, ValidationError, record
 from athanor.programs import argument, field
-from athanor.values import as_tuple
+from athanor.values import as_record, as_ref, as_tuple
 
 from .geometry import (
     Vec3,
@@ -124,6 +124,9 @@ class World:
         ):
             raise ValidationError("Invalid bounded territory interaction response")
         self.interaction_distance = float(interaction_distance)
+        self.interaction_process: Ref | None = None
+        self.motion_process: Ref | None = None
+        self.motion_value: Ref | None = None
         self.knowledge = Athanor(namespace=namespace)
         self.resolution = resolution
         self.bounds: Vec3 = (6, 3, 6)
@@ -154,6 +157,34 @@ class World:
     @property
     def position(self) -> Vec3:
         return vector(self.knowledge.get(self.body).fields["position"])
+
+    def set_interaction_process(self, operation: Ref) -> None:
+        """Authority-only native surface-gap law; never exported through SensorFrame."""
+        spec = self.knowledge.get(operation).fields.get("procedure")
+        if (
+            self.knowledge.get(operation).role != Role.OPERATION
+            or not isinstance(spec, Record)
+            or len(as_tuple(spec["inputs"])) != 1
+            or not isinstance(spec["result"], Ref)
+            or as_record(as_tuple(spec["inputs"])[0])["category"] != spec["result"]
+            or spec["update"] is not None
+            or "value" not in as_record(spec["fields"])
+        ):
+            raise ValidationError(
+                "Interaction process requires one typed quantity and quantity result"
+            )
+        self.interaction_process = operation
+
+    def set_motion_process(self, operation: Ref, *, initial: Fraction = Fraction(1, 4)) -> None:
+        """Private actuator state evolves by a bounded native quantity process."""
+        prior = self.interaction_process
+        self.set_interaction_process(operation)
+        self.interaction_process = prior
+        spec = as_record(self.knowledge.get(operation).fields["procedure"])
+        if not isinstance(initial, Fraction) or not 0 < initial <= Fraction(1, 2):
+            raise ValidationError("Invalid initial bounded actuator magnitude")
+        self.motion_value = self.knowledge.create(as_ref(spec["result"]), {"value": initial})
+        self.motion_process = operation
 
     def add_object(
         self,
@@ -252,14 +283,28 @@ class World:
         delta = rotate(local, self.yaw)
         contact = False
         # Swept integration in 25 mm substeps, with all authoritative adoption atomic.
-        snapshot = (self.body, list(self.objects), self.tick, self.yaw, self.pitch)
+        snapshot = (
+            self.body,
+            list(self.objects),
+            self.tick,
+            self.yaw,
+            self.pitch,
+            self.motion_value,
+        )
         try:
 
             def transition(a: Athanor) -> Ref:
                 original = self.knowledge
                 self.knowledge = a
                 try:
-                    nonlocal contact
+                    nonlocal contact, delta
+                    if self.motion_process is not None and any(delta) and self.motor:
+                        assert self.motion_value is not None
+                        self.motion_value = a.execute(self.motion_process, (self.motion_value,))
+                        magnitude = float(cast(Fraction, a.get(self.motion_value).fields["value"]))
+                        if not math.isfinite(magnitude) or not 0 < magnitude <= 0.5:
+                            raise ValidationError("Actuator process exceeds bounded motion")
+                        delta = scale(delta, magnitude / distance(delta, (0, 0, 0)))
                     for ref in tuple(self.objects):
                         node = a.get(ref)
                         velocity = vector(node.fields["velocity"])
@@ -318,9 +363,38 @@ class World:
                                 node.fields["movable"]
                                 and distance(self.position, vector(node.fields["position"])) < 1.2
                             ):
+                                displacement = self.interaction_distance
+                                if self.interaction_process is not None:
+                                    spec = as_record(
+                                        a.get(self.interaction_process).fields["procedure"]
+                                    )
+                                    gap = (
+                                        rotate(
+                                            add(
+                                                vector(node.fields["position"]),
+                                                scale(self.position, -1),
+                                            ),
+                                            -self.yaw,
+                                        )[2]
+                                        - vector(node.fields["size"])[2]
+                                    )
+                                    input_ref = a.create(
+                                        as_ref(spec["result"]), {"value": exact(gap)}
+                                    )
+                                    result = a.execute(self.interaction_process, (input_ref,))
+                                    next_gap = float(cast(Fraction, a.get(result).fields["value"]))
+                                    if (
+                                        not math.isfinite(next_gap)
+                                        or not 0 < next_gap <= 6
+                                        or abs(next_gap - gap) > 1
+                                    ):
+                                        raise ValidationError(
+                                            "Native law exceeds bounded physical consequences"
+                                        )
+                                    displacement = next_gap - gap
                                 pushed = add(
                                     vector(node.fields["position"]),
-                                    rotate((0, 0, self.interaction_distance), self.yaw),
+                                    rotate((0, 0, displacement), self.yaw),
                                 )
                                 clear = not any(
                                     rigid_overlap(
@@ -365,7 +439,7 @@ class World:
 
             event = self.knowledge.transaction(transition)
         except Exception:
-            self.body, self.objects, self.tick, self.yaw, self.pitch = snapshot
+            self.body, self.objects, self.tick, self.yaw, self.pitch, self.motion_value = snapshot
             raise
         self.events.append(event)
         actual = rotate(add(self.position, scale(old, -1)), -snapshot[3])
@@ -441,8 +515,37 @@ class World:
 
         return json.dumps(
             {
-                "version": 2,
+                "version": 2
+                if self.interaction_process is None and self.motion_process is None
+                else 3,
                 "interaction_distance": self.interaction_distance,
+                **(
+                    {}
+                    if self.interaction_process is None and self.motion_process is None
+                    else {
+                        "interaction_process": None
+                        if self.interaction_process is None
+                        else [
+                            self.interaction_process.id,
+                            self.interaction_process.revision,
+                            self.interaction_process.namespace,
+                        ],
+                        "motion_process": None
+                        if self.motion_process is None
+                        else [
+                            self.motion_process.id,
+                            self.motion_process.revision,
+                            self.motion_process.namespace,
+                        ],
+                        "motion_value": None
+                        if self.motion_value is None
+                        else [
+                            self.motion_value.id,
+                            self.motion_value.revision,
+                            self.motion_value.namespace,
+                        ],
+                    }
+                ),
                 "knowledge": self.knowledge.dumps(),
                 "resolution": self.resolution,
                 "bounds": self.bounds,
@@ -486,13 +589,16 @@ class World:
                 "executed",
                 "events",
             }
-            if isinstance(data, dict) and data.get("version") == 2:
+            if isinstance(data, dict) and data.get("version") in (2, 3):
                 expected.add("interaction_distance")
+                if data["version"] == 3:
+                    expected.add("interaction_process")
+                    expected.update({"motion_process", "motion_value"})
             if (
                 type(data) is not dict
                 or set(data) != expected
                 or type(data["version"]) is not int
-                or data["version"] not in (1, 2)
+                or data["version"] not in (1, 2, 3)
             ):
                 raise ValidationError("Unsupported world snapshot")
             obj = cls(
@@ -517,6 +623,23 @@ class World:
             obj.objects = [ref(r) for r in data["objects"]]
             obj.body, obj.updater = ref(data["body"]), ref(data["updater"])
             obj.events = [ref(r) for r in data["events"]]
+            if data["version"] == 3:
+                if data["interaction_process"] is not None:
+                    obj.set_interaction_process(ref(data["interaction_process"]))
+                if (data["motion_process"] is None) != (data["motion_value"] is None):
+                    raise ValidationError("Actuator law/state disagree")
+                if data["motion_process"] is not None:
+                    prior = obj.interaction_process
+                    obj.set_interaction_process(ref(data["motion_process"]))
+                    obj.motion_process, obj.interaction_process = obj.interaction_process, prior
+                    assert obj.motion_process is not None
+                    obj.motion_value = ref(data["motion_value"])
+                    quantity = obj.knowledge.get(obj.motion_value)
+                    spec = as_record(obj.knowledge.get(obj.motion_process).fields["procedure"])
+                    if quantity.category != spec["result"] or not 0 < cast(
+                        Fraction, quantity.fields["value"]
+                    ) <= Fraction(1, 2):
+                        raise ValidationError("Invalid persisted actuator quantity")
             obj.bounds = tuple(data["bounds"])
             obj.tick, obj.yaw, obj.pitch = data["tick"], data["yaw"], data["pitch"]
             obj.motor, obj.camera_hold = data["motor"], data["camera_hold"]

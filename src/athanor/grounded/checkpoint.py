@@ -22,6 +22,7 @@ from athanor.world.engine import ACTIONS
 
 from .discovery import Discovery
 from .perception import SensoryEncoder, perceive
+from .processes import Processes
 from .runtime import GroundedObserver, PixelObserver, Runtime, Track, contextual_frame
 from .training import GroundedTrainer
 
@@ -64,6 +65,8 @@ def save(runtime: Runtime, path: str | Path, *, trainer: GroundedTrainer | None 
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     grounded = runtime.observer
+    if not finite(grounded.processes._retained):
+        raise PersistenceError("Non-finite process retention anchors")
     transition_meta = None
     transition_tensors = None
     if runtime.last_transition is not None:
@@ -104,6 +107,7 @@ def save(runtime: Runtime, path: str | Path, *, trainer: GroundedTrainer | None 
                 "optimizer": None if trainer is None else trainer.optimizer.state_dict(),
                 "rng": None if trainer is None else trainer.rng.getstate(),
                 "updates": None if trainer is None else trainer.updates,
+                "process_retention": grounded.processes._retained,
                 "transition": transition_tensors,
                 "inference_prior": {
                     "refs": [ref_data(v) for v in grounded.observer.input_state.refs],
@@ -115,8 +119,9 @@ def save(runtime: Runtime, path: str | Path, *, trainer: GroundedTrainer | None 
             payload,
         )
         metadata = {
-            "version": 3,
+            "version": 4,
             "discovery": grounded.discovery.metadata(),
+            "processes": grounded.processes.metadata(),
             "transition": transition_meta,
             "operations": {k: ref_data(v) for k, v in grounded.operations.items()},
             "target_anchor": ref_data(grounded.target_anchor),
@@ -209,13 +214,15 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             "paused",
             "running",
         }
-        if metadata.get("version") == 3:
+        if metadata.get("version") in (3, 4):
             expected_metadata.add("discovery")
+        if metadata.get("version") == 4:
+            expected_metadata.add("processes")
         if (
             type(metadata) is not dict
             or set(metadata) != expected_metadata
             or type(metadata["version"]) is not int
-            or metadata["version"] not in (1, 2, 3)
+            or metadata["version"] not in (1, 2, 3, 4)
         ):
             raise PersistenceError("Unsupported grounded checkpoint version")
         if (
@@ -240,6 +247,8 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
         expected_payload = {"parameters", "trainable", "optimizer", "rng", "updates", "transition"}
         if metadata["version"] >= 2:
             expected_payload.add("inference_prior")
+        if metadata["version"] >= 4:
+            expected_payload.add("process_retention")
         if set(payload) != expected_payload:
             raise PersistenceError("Malformed sensory training state")
         if not finite(payload):
@@ -354,9 +363,36 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
         grounded.last_percepts = () if pixel.sensor is None else perceive(sensory, pixel.sensor)
         grounded.discovery = (
             Discovery.restore(grounded, metadata["discovery"])
-            if metadata["version"] == 3
+            if metadata["version"] >= 3
             else Discovery(grounded)
         )
+        grounded.processes = (
+            Processes.restore(grounded, metadata["processes"])
+            if metadata["version"] == 4
+            else Processes(grounded)
+        )
+        if (
+            metadata["version"] >= 4
+            and grounded.processes.neural_updates > 0
+            and payload["process_retention"] is None
+        ):
+            raise PersistenceError("Missing trained process retention anchors")
+        if metadata["version"] >= 4 and payload["process_retention"] is not None:
+            retention = payload["process_retention"]
+            if (
+                type(retention) is not tuple
+                or len(retention) != 3
+                or not isinstance(retention[0], torch.Tensor)
+                or retention[0].ndim != 2
+                or not 1 <= retention[0].shape[0] <= 16384
+            ):
+                raise PersistenceError("Invalid process retention anchors")
+            n, width = retention[0].shape[0], observer.model.config.width
+            grounded.processes._retained = (
+                _tensor(retention[0], (n, width)),
+                _tensor(retention[1], (n, width)),
+                _tensor(retention[2], (n,)),
+            )
         if pixel._frame is not None and pixel.sensor is not None:
             pixel._frame = contextual_frame(pixel._frame, pixel.knowledge)
         runtime = object.__new__(Runtime)

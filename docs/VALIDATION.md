@@ -472,3 +472,72 @@ For an independent distribution check, create a second Python 3.14 environment,
 install only the built wheel, and run its Python with `-I -m unittest discover -s
 E:\ATHANOR\tests -q`. The tests use the standard library and import the installed
 package; they do not require an external model or development tool dependency.
+
+## Goal 006: recursive processes (0.6.0, 2026-10-11)
+
+The continuous acceptance restores the actual Goal 005 checkpoint, its knowledge, model
+and owned optimizer. A private territory law changes actual body movement; the observer
+sees only stereo images and limited body feedback. It constructs 272 native call trees
+from established arithmetic and a unit quantity, without receiving the territory law.
+Four neural-selected forward actions give an initial history measurement and three
+distinct input/output pairs. The Runtime automatically adopts the neural-selected
+supported composition `F(q) = q/(q+1)`;
+contradictory alternatives retain measured errors and qualified status. A subsequent
+physical prediction on a new input has error **1.1111111475e-9** (tolerance **0.001**).
+This evidence supports the observed interface scope, not a universal causal law.
+
+The second interface supplies ordered nested numeric packets with independent varying
+channels. Neural-selected stimuli precede their measurements. The shared model/evidence
+select input `channel[1]` and output `readings[0]`, then install typed native input and
+output bindings around the **same** acquired process. A held-out input **1/6** transfers
+exactly; native reconstruction preserves unrelated output channels. False consequences
+fail correspondence assessment. Out-of-range inputs and a changed one-pass/two-pass
+context withhold reuse. Ordinary tests also retain ambiguity for co-varying selectors.
+
+The acquired process joins the constructor by pinned reference. A new 324-candidate
+inquiry receives model-selected measurements from a two-stage interface. It acquires
+`F(F(q))`, which computes exact **1/4** at a fresh input **1/2**. The expression invokes
+the existing process twice; it does not copy its implementation. **200** measured-error
+consolidations change the existing shared scorer's weights/biases. The shared model's
+parameter count stays **107,980**. Structural and semantic proposal accuracy remains
+**48/48** in each retained evaluation before and after adaptation; abstention and measured
+semantic ordering are also retained. These are bounded preservation checks, not a
+comparative benchmark or an unlimited continual-learning guarantee.
+
+The session saves and restores native constituents, evidence/revisions, mappings, inquiry,
+self-capability counts, active neural state and optimizer. Restored procedures and mappings
+execute without a teacher or replaying the original sequence. A focused test additionally
+clears the transient observation lists before reuse. A separately installed 0.6 wheel
+restores the same checkpoint, computes 1/4, saves, and restores again with exact native
+process/world state and optimizer update count **5,485**. Torch is supplied from the existing
+local neural environment for that isolated package check; the package import resolves to
+the installed wheel, not the source checkout.
+
+Evidence files generated under `artifacts/`:
+
+- `process-observer.athanor`, `process-observer.report.json`, `process-run.log`.
+- `process-tests.log`: **15 focused tests pass**, including exact continuation of the
+  next shared process-training update with persisted retention anchors.
+- `goal006-regression.log`: **181 tests pass** in the full regression, including all
+  three longer legacy training acceptances. This run began before the final retention
+  persistence test was added; the subsequent current-source run below covers that test
+  and the final process/checkpoint changes.
+- `goal006-current-contracts.log`: 179 current-source correctness/acceptance tests,
+  excluding only the three longer legacy training acceptances run in the full regression.
+- `goal006-wheel-tests.log`: **94 dependency-free tests pass**, 88 neural tests skipped.
+- `goal006-installed-continuation.log` and `process-installed-continued.athanor`.
+- `goal006-headless.json`: restored version 0.6.0, paused world at tick 5.
+- `goal006-build.log`: successful wheel and source distribution build.
+- `process-viewer.jpg` and `process-viewer-ready.jpg`: actual restored viewer and result.
+
+Ruff lint/format, strict mypy over 42 source files, and offline lock consistency pass.
+The local viewer remains paused at `http://127.0.0.1:8766/`; browser application of the
+restored recursive process displays exact **1/4** and adds a native application receipt.
+The viewer exposes candidates, qualified alternatives, dependencies, proposals, mappings,
+measurements, actual application results, capability counts and shared learning updates.
+
+The initial inductive family is bounded typed exact quantity call trees. Taught compatible
+conditional/accumulated procedures can participate, and acquired procedures compose again.
+The acceptance establishes direct body-feedback discovery and structured digital transfer;
+it does not establish nonlinear discovery from uncertain camera depth, general inverse
+discovery, unrestricted synthesis, automatic arbitrary-unit conversion, or unbounded scale.

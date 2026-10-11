@@ -9,7 +9,7 @@ from pathlib import Path
 
 import torch
 
-from athanor import AthanorError, Record, Ref, ValidationError
+from athanor import AthanorError, Record, Ref, ValidationError, record
 from athanor.world import Action
 from athanor.world.engine import vector
 
@@ -30,6 +30,22 @@ def json_value(value: object) -> object:
     return value
 
 
+def packet(value: object) -> Record:
+    def convert(raw: object) -> object:
+        if isinstance(raw, dict):
+            if set(raw) == {"$number"}:
+                return Fraction(raw["$number"])
+            return {k: convert(v) for k, v in raw.items()}
+        if isinstance(raw, list):
+            return tuple(convert(v) for v in raw)
+        return raw
+
+    converted = convert(value)
+    if not isinstance(converted, dict):
+        raise ValidationError("A process interface requires a structured packet")
+    return record(converted)
+
+
 class Application:
     def __init__(
         self, runtime: Runtime, checkpoint: Path, trainer: GroundedTrainer | None = None
@@ -46,7 +62,7 @@ class Application:
             action, decision = o.propose(commit=False)
             sensor = o.observer.sensor
             return {
-                "version": "0.5.0",
+                "version": "0.6.0",
                 "tick": r.world.tick,
                 "paused": r.paused,
                 "running": r.running,
@@ -126,6 +142,62 @@ class Application:
                     ],
                     "activation": o.observer.activation_history[-1:],
                 },
+                "processes": {
+                    "status": o.processes.status,
+                    "interface": o.processes.interface,
+                    "remaining": o.processes.budget - o.processes.spent,
+                    "neural_updates": o.processes.neural_updates,
+                    "selected": json_value(o.processes.selected),
+                    "library": [json_value(o.knowledge.get(v).fields) for v in o.processes.library],
+                    "candidates": [
+                        dict(
+                            operation=str(c.operation),
+                            score=c.score,
+                            hypothesis=json_value(o.knowledge.get(c.hypothesis).fields),
+                        )
+                        for c in sorted(
+                            o.processes.candidates, key=lambda c: c.score, reverse=True
+                        )[:12]
+                    ],
+                    "candidate_count": len(o.processes.candidates),
+                    "qualified_count": sum(c.status == "qualified" for c in o.processes.candidates),
+                    "acquired": [
+                        dict(
+                            operation=str(c.operation),
+                            hypothesis=json_value(o.knowledge.get(c.hypothesis).fields),
+                        )
+                        for c in [*o.processes.archive, *o.processes.candidates]
+                        if c.operation in o.processes.adopted
+                    ],
+                    "correspondences": [
+                        dict(
+                            reference=str(v),
+                            binding=json_value(o.knowledge.get(v).fields),
+                            evidence=[
+                                json_value(o.knowledge.get(e).fields)
+                                for e in o.processes.mapping_evidence[v]
+                            ],
+                            qualified=any(
+                                e in o.processes.adopted for e in o.processes.mapping_evidence[v]
+                            ),
+                        )
+                        for v in o.processes.mappings
+                    ],
+                    "proposed_correspondences": [
+                        json_value(o.knowledge.get(v).fields)
+                        for v in o.processes.correspondence_hypotheses[-12:]
+                    ],
+                    "evidence": [
+                        json_value(o.knowledge.get(v).fields) for v in o.processes.examples[-8:]
+                    ],
+                    "probes": [
+                        json_value(o.knowledge.get(v).fields) for v in o.processes.probes[-8:]
+                    ],
+                    "capabilities": {str(k): v.copy() for k, v in o.processes.capabilities.items()},
+                    "applications": [
+                        json_value(o.knowledge.get(v).fields) for v in o.processes.applications[-8:]
+                    ],
+                },
             }
 
     def command(self, data: dict[str, object]) -> dict[str, object]:
@@ -134,17 +206,98 @@ class Application:
             if type(op) is not str:
                 raise ValidationError("A command requires an operation name")
             r = self.runtime
+            p = r.observer.processes
             message = "Runtime updated"
             if op == "start":
                 r.running, r.paused = True, False
                 if r.observer.discovery.status == "paused":
                     r.observer.discovery.resume()
+                if p.status == "paused":
+                    p.status = "running" if p.spent < p.budget else "exhausted"
             elif op == "stop":
                 r.running, r.paused = False, True
                 r.observer.discovery.stop()
+                p.status = "stopped"
             elif op == "pause":
                 r.paused = True
                 r.observer.discovery.pause()
+                if p.status == "running":
+                    p.status = "paused"
+            elif op == "discover_processes":
+                budget, calls = data.get("budget", 12), data.get("max_calls", 2)
+                if type(budget) is not int or type(calls) is not int:
+                    raise ValidationError("Process resources require integers")
+                r.start_process_discovery(
+                    budget, max_calls=calls, interface=str(data.get("interface", "body"))
+                )
+                message = "Bounded native process construction and inquiry started"
+            elif op in {
+                "adopt_process",
+                "train_processes",
+                "process_observation",
+                "process_probe",
+                "correspond_process",
+                "apply_process",
+                "apply_mapping",
+            }:
+                result: object = None
+                if op == "adopt_process":
+                    result = p.adopt()
+                elif op == "train_processes":
+                    p.learn(self.trainer, steps=40)
+                elif op == "process_observation":
+                    result = p.observe(
+                        Fraction(str(data["before"])),
+                        Fraction(str(data["after"])),
+                        source="external measured quantity interface",
+                    )
+                elif op == "process_probe":
+                    raw = data.get("values")
+                    if not isinstance(raw, list):
+                        raise ValidationError("Provide a bounded stimulus domain")
+                    result = p.choose_probe(tuple(Fraction(str(v)) for v in raw))
+                else:
+                    pool = p.mappings if op == "apply_mapping" else p.adopted
+                    ref = next((v for v in pool if str(v) == data.get("reference")), None)
+                    if ref is None:
+                        raise ValidationError(
+                            "Provide an existing pinned process or mapping reference"
+                        )
+                    if op == "apply_process":
+                        result = p.apply(ref, Fraction(str(data["value"])))
+                    elif op == "apply_mapping":
+                        result = p.apply_mapping(
+                            ref,
+                            packet(data["packet"]),
+                            observed=packet(data["observed"]) if "observed" in data else None,
+                        )
+                        if "template" in data:
+                            result = p.materialize_mapping(
+                                ref, packet(data["packet"]), packet(data["template"])
+                            )
+                    else:
+                        rows = data.get("packets")
+                        if not isinstance(rows, list) or len(rows) > 64:
+                            raise ValidationError("Provide bounded before/after packet pairs")
+                        pairs = []
+                        for row in rows:
+                            if not isinstance(row, dict):
+                                raise ValidationError("Malformed correspondence pair")
+                            pairs.append((packet(row["before"]), packet(row["after"])))
+                        result = p.correspond(
+                            ref, pairs, source="external measured structured interface"
+                        )
+                r.observer.observe(r.world.sense())
+                return {
+                    "message": "Process knowledge updated"
+                    if result is not None
+                    else "Evidence remains insufficient or out of scope",
+                    "result": json_value(result),
+                    "exact_quantity": str(p.knowledge.get(result).fields["value"])
+                    if isinstance(result, Ref)
+                    and isinstance(p.knowledge.get(result).fields.get("value"), Fraction)
+                    else None,
+                }
             elif op in {"explore", "investigate"}:
                 budget = data.get("budget", 24)
                 if type(budget) is not int:
@@ -156,10 +309,13 @@ class Application:
                 message = "Autonomous inquiry started with a bounded action budget"
             elif op == "resume":
                 r.observer.discovery.resume()
+                if p.status == "paused":
+                    p.status = "running" if p.spent < p.budget else "exhausted"
                 r.running, r.paused = True, False
                 message = "Resumed inquiry with its retained knowledge and remaining budget"
             elif op == "stop_inquiry":
                 r.observer.discovery.stop()
+                p.status = "stopped"
                 r.paused = True
             elif op == "pause_learning":
                 r.observer.discovery.learning = False
@@ -285,6 +441,11 @@ def main() -> None:
     parser.add_argument("--paused", action="store_true", help="Open with inquiry execution paused")
     parser.add_argument("--steps", type=int, default=10)
     parser.add_argument("--explore", action="store_true")
+    parser.add_argument(
+        "--processes",
+        action="store_true",
+        help="Construct native call compositions through measured body inquiry",
+    )
     parser.add_argument("--focus", choices=("object", "self", "interface"))
     args = parser.parse_args()
     torch.set_num_threads(1)
@@ -293,13 +454,17 @@ def main() -> None:
     if args.paused:
         runtime.paused = True
         runtime.observer.discovery.pause()
-    if args.explore:
+        if runtime.observer.processes.status == "running":
+            runtime.observer.processes.status = "paused"
+    if args.processes:
+        runtime.start_process_discovery(max(1, args.steps))
+    elif args.explore:
         runtime.start_discovery(max(1, args.steps), focus=args.focus)
     if args.headless:
         if args.steps < 0:
             parser.error("Steps must be nonnegative")
         for _ in range(args.steps):
-            application.command({"op": "auto" if args.explore else "step"})
+            application.command({"op": "auto" if args.explore or args.processes else "step"})
         print(json.dumps(application.state(), indent=2))
     else:
         server = ThreadingHTTPServer(("127.0.0.1", args.port), handler(application))

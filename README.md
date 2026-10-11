@@ -28,6 +28,26 @@ independent acquisition of executable conditional relationships, continued neura
 selective indexed activation and complete inquiry restoration. The same shared model
 selects experiments; camera/body consequences supply the learned relationship.
 
+Goal 006 (0.6.0) constructs new native processes through bounded compatible call trees,
+measured evidence and shared neural selection. Typed interface correspondences reuse the
+same process through different representations. Acquired processes become constituents
+of larger compositions; contradictions qualify dependent knowledge. No new neural
+parameter block is allocated for an acquired process.
+
+Run the continuous physical, digital-interface and recursive-reuse session from the
+existing Goal 005 checkpoint:
+
+```powershell
+.venv\Scripts\python.exe -m athanor.grounded.process_demo
+.venv\Scripts\python.exe -m athanor.grounded.app --checkpoint artifacts\process-observer.athanor --paused
+```
+
+The process viewer shows actual scores, dependencies, evidence, typed mappings and
+capability counts. [Process API and training](docs/PROCESS_API.md) documents headless
+use and scope. [Integration design](docs/RECURSIVE_PROCESSES.md) explains the contracts.
+The initial family is bounded exact quantity compositions with explicit measured scope;
+it does not establish universal applicability or unrestricted program synthesis.
+
 To run the complete discovery and transfer demonstration after Goal 004 training:
 
 ```powershell

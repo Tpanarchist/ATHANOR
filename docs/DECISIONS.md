@@ -242,3 +242,24 @@ authentication. Application access is local, not an authenticated remote product
 
 These questions do not prevent the operational cornerstone and first neural observer.
 They prevent treating bounded taught operational meaning as general intelligence.
+
+## Goal 006: compose native processes and qualify their interfaces
+
+Reuse typed Procedure call trees, pinned references and exact kernel execution. Native
+hypotheses and measured applicability are separate from mathematical validity. Bounded
+enumeration supplies compatible proposals; shared neural selection and measured feedback
+choose and revise useful knowledge. No process-specific network, answer table, generated
+Python or hidden world-law input is introduced. Learned processes become call constituents.
+
+Add only a trusted nested Record-construction expression: existing field projection could
+read a packet but could not rebuild its nested output. Keep all old validation/resource/
+transaction/persistence contracts. Accept interface bindings in one staged kernel transaction.
+Learn selectors from preserved consequences, retain ambiguous alternatives, enforce observed
+domain and constant context guards, and record external measurements explicitly.
+
+The acceptance uses directly measured body displacement because camera-derived depth alone
+did not support this compound relationship reliably at the available resolution. Camera
+ingestion remains conservative; its existence is not a claim of successful nonlinear visual
+discovery. The second interface is nested ordered numerical packets, with varying independent
+channels. Model-selected numeric stimuli precede their measurements. Recursive reuse calls
+the acquired process twice by reference, without copying its implementation or adding weights.

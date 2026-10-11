@@ -54,7 +54,17 @@ AUTONOMOUS_DISCOVERY, DISCOVERY_API and DISCOVERY_TRAINING. Initial induction co
 and conditional constant effects. Arbitrary nonlinear laws, calibrated uncertainty,
 authenticated external observations and general interference guarantees remain future work.
 
-## 006: Scalable activation and knowledge retention
+## 006: Recursive abstraction and process discovery — implemented
+
+Bounded native call construction, shared neural proposal selection, measured evidence,
+typed input/output correspondences, recursive acquired-process reuse, dependency
+qualification, capability feedback and complete checkpoint/viewer integration. The
+continuous session restores Goal 005, discovers a compound body-motion relationship,
+transfers it to ordered numerical packets and builds a larger repeated composition.
+See RECURSIVE_PROCESSES, PROCESS_API and VALIDATION. Initial scope is exact typed quantity
+call trees, not unrestricted synthesis, universal transfer or calibrated uncertainty.
+
+## 007: Scalable activation and knowledge retention
 
 Measure total encoding, inference, training and knowledge storage costs. Add graph
 indexes, learned sparse activation budgets with explicit exclusion semantics, durable
@@ -63,7 +73,7 @@ Avoid silent revision drift or deleting provenance dependencies. Improve represe
 fidelity beyond compressed hash features where evidence warrants it. Runtime limits
 remain separate from model-size hypotheses.
 
-## 007: Controlled process refinement
+## 008: Controlled process refinement
 
 Represent procedure/representation proposals as structural data. Validate adoption
 against held-out execution, retention and resource contracts, with rollback and
@@ -71,7 +81,7 @@ versioned usage. Review changes to the trusted native validator/interpreter sepa
 The cornerstone makes operations reflectable; the neural observer can select them.
 Neither milestone implements autonomous architecture rewriting.
 
-## 008: Broader digital-universe integration
+## 009: Broader digital-universe integration
 
 Extend the local Goal 004 simulation to richer environments and explicit queued
 actions, observations and effect receipts. Preserve environment/kernel boundaries,

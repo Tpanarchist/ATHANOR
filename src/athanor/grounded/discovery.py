@@ -63,10 +63,12 @@ class Estimate:
         )
 
 
-def experiment_features(values: Record) -> dict[str, object]:
+def experiment_features(
+    values: Record, *, kind: str = "experimental_priority"
+) -> dict[str, object]:
     """Shared features omit action names/IDs: priority cannot memorize a scene solution."""
     keys = ("uncertainty", "relevance", "benefit", "reliability", "cost", "risk")
-    result: dict[str, object] = {"kind": "experimental_priority"}
+    result: dict[str, object] = {"kind": kind}
     for key in keys:
         number = float(cast(Fraction, values[key]))
         result[key] = exact(number * 32)
@@ -76,7 +78,9 @@ def experiment_features(values: Record) -> dict[str, object]:
     return result
 
 
-def priority_vectors(model: Any, options: list[Record]) -> Tensor:
+def priority_vectors(
+    model: Any, options: list[Record], *, kind: str = "experimental_priority"
+) -> Tensor:
     # Compact interface views follow Goal 004's intent encoding convention.
     from athanor import Structure
 
@@ -84,7 +88,11 @@ def priority_vectors(model: Any, options: list[Record]) -> Tensor:
         [
             structural_features(
                 Structure(
-                    Ref("s00000001"), Role.DATA, None, record(experiment_features(values)), ()
+                    Ref("s00000001"),
+                    Role.DATA,
+                    None,
+                    record(experiment_features(values, kind=kind)),
+                    (),
                 )
             )
             for values in options
