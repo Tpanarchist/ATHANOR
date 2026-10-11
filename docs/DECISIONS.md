@@ -263,3 +263,28 @@ ingestion remains conservative; its existence is not a claim of successful nonli
 discovery. The second interface is nested ordered numerical packets, with varying independent
 channels. Model-selected numeric stimuli precede their measurements. Recursive reuse calls
 the acquired process twice by reference, without copying its implementation or adding weights.
+
+
+## Goal 007: invent operational distinctions within a bounded structural grammar
+
+Exact graph, grouping, order and geometric operations belong in the existing native
+expression algebra. The observer learns useful distinction predicates and compositions,
+not new numerical implementations. Anonymous property equality/difference, directed roles,
+ordered peers and connectivity seed a finite compositional grammar, without a named
+concept taxonomy or entire scenario answers. Missing properties retain unknown membership.
+
+The structural front end uses the existing process Candidate constructor and shared
+scorer consolidation. Every proposed solution executes through the cornerstone. Neural
+ranking controls proposal/beam/rule/test selection; evidence vetoes unsupported choices.
+A generic representation bridge may inform prefix relevance but never converts a wrong
+final output into supporting evidence. A single successful plan remains provisional.
+
+Concept goals bind eligibility to the initial structure, with explicit cardinality when
+required. New measured evidence can prune alternatives and replace a rejected preferred
+rule; rejected procedures and dependent abstractions are qualified while historical pins
+remain intact. Distinct inputs, not repeated successes, support generalization.
+
+Symbolic raster observations establish spatial structure and exact geometry in this
+milestone. They do not establish new camera perception semantics. No ARC data or published
+examples are accessed. Resource-bounded failures retain uncertainty; no absence proof or
+claim of unrestricted intelligence follows from this acceptance.

@@ -383,11 +383,11 @@ class Athanor:
                 pending.extend(store.receipts[cause - 1].result for cause in receipt.causes)
             return tuple(store.receipts[index - 1] for index in sorted(selected))
 
-    def dumps(self) -> str:
+    def dumps(self, *, compact: bool = False) -> str:
         from .persistence import dumps
 
         with self._lock:
-            return dumps(self._store)
+            return dumps(self._store, compact=compact)
 
     @classmethod
     def loads(cls, snapshot: str) -> Athanor:

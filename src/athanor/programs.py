@@ -80,6 +80,11 @@ def call(operation: Ref | str, *arguments: Record) -> Record:
     return record(op="call", operation=operation, arguments=arguments)
 
 
+def structural(operator: str, *arguments: Record) -> Record:
+    """Generic exact algorithms; scoped bodies use native structural variables."""
+    return record(op="structural", operator=operator, arguments=arguments)
+
+
 @dataclass(frozen=True, slots=True)
 class Procedure:
     inputs: tuple[Endpoint, ...]
@@ -113,6 +118,7 @@ _KEYS = {
     "variable": {"op", "name"},
     "fold": {"op", "items", "initial", "body"},
     "call": {"op", "operation", "arguments"},
+    "structural": {"op", "operator", "arguments"},
 }
 
 
@@ -160,7 +166,14 @@ def validate_expression(
         for raw in as_record(expression["fields"]).values():
             child(raw)
     elif op == "variable":
-        if not in_fold or expression["name"] not in {"item", "acc"}:
+        if not in_fold or expression["name"] not in {
+            "item",
+            "acc",
+            "root",
+            "index",
+            "peer",
+            "peer_index",
+        }:
             raise ValidationError("Only item/acc variables inside fold bodies are available")
     elif op == "fold":
         child(expression["items"])
@@ -172,6 +185,15 @@ def validate_expression(
             check_operation(as_ref(target, "called operation"))
         for raw in as_tuple(expression["arguments"]):
             child(raw)
+    elif op == "structural":
+        from .structural import ARITIES, SCOPED
+
+        operator = as_string(expression["operator"])
+        arguments = as_tuple(expression["arguments"])
+        if operator not in ARITIES or len(arguments) != ARITIES[operator]:
+            raise ValidationError("Unknown structural algorithm or invalid arity")
+        for i, raw in enumerate(arguments):
+            child(raw, in_fold or operator in SCOPED and i == 1)
 
 
 class Evaluator:
@@ -207,7 +229,20 @@ class Evaluator:
         if op == "argument":
             return arguments[as_index(expression["index"])]
         if op == "variable":
-            return scope[as_string(expression["name"])]
+            name = as_string(expression["name"])
+            if name not in scope:
+                raise ExecutionError("Structural variable is outside its binding scope")
+            return scope[name]
+        if op == "structural":
+            from .structural import evaluate
+
+            return evaluate(
+                as_string(expression["operator"]),
+                as_tuple(expression["arguments"]),
+                child,
+                scope,
+                self.tick,
+            )
         if op in {"field", "has_field"}:
             source = child(expression["of"])
             values = self.get(source).fields if isinstance(source, Ref) else as_record(source)

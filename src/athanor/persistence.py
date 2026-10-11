@@ -107,7 +107,7 @@ def _receipt(receipt: Receipt) -> dict[str, object]:
     }
 
 
-def dumps(store: Store) -> str:
+def dumps(store: Store, *, compact: bool = False) -> str:
     try:
         payload: dict[str, object] = {
             "format": FORMAT,
@@ -124,7 +124,8 @@ def dumps(store: Store) -> str:
                 {"payload": payload, "sha256": digest},
                 sort_keys=True,
                 ensure_ascii=False,
-                indent=2,
+                indent=None if compact else 2,
+                separators=(",", ":") if compact else None,
                 allow_nan=False,
             )
             + "\n"

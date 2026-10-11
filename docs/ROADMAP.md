@@ -64,14 +64,17 @@ transfers it to ordered numerical packets and builds a larger repeated compositi
 See RECURSIVE_PROCESSES, PROCESS_API and VALIDATION. Initial scope is exact typed quantity
 call trees, not unrestricted synthesis, universal transfer or calibrated uncertainty.
 
-## 007: Scalable activation and knowledge retention
+## 007: Concept formation and general rule induction — implemented in 0.7.0
 
-Measure total encoding, inference, training and knowledge storage costs. Add graph
-indexes, learned sparse activation budgets with explicit exclusion semantics, durable
-transactional storage, and dependency-aware history retention against measured workloads.
-Avoid silent revision drift or deleting provenance dependencies. Improve representation
-fidelity beyond compressed hash features where evidence warrants it. Runtime limits
-remain separate from model-size hypotheses.
+Native operational distinctions, typed scoped roles, directed relational structures,
+raw symbolic rasters, example-qualified transformations and bounded structural goal
+planning extend the existing kernel/process/shared recurrent architecture. Acquired
+concepts and plans compose again; alternatives, contradictions, measured capabilities,
+neural state and investigation history persist. Independent relational/spatial acceptance
+starts from the real Goal 006 checkpoint and continues solving after restoration.
+See CONCEPT_API, CONCEPT_TRAINING and VALIDATION for measured scope and limitations.
+A finite initial grammar is operational; unrestricted representation invention,
+autonomous architecture rewriting and ARC assessment remain future work.
 
 ## 008: Controlled process refinement
 

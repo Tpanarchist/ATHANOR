@@ -61,6 +61,7 @@ class Candidate:
     results: list[Ref] = data_field(default_factory=list)
     status: str = "unknown"
     score: float = 0.0
+    proposal_errors: list[float] = data_field(default_factory=list)
 
 
 def selectors(values: object, path: tuple[str | int, ...] = ()) -> list[tuple[str | int, ...]]:
@@ -449,6 +450,57 @@ class Processes:
         )
         return cast(Fraction, self.knowledge.get(result).fields["value"]), result
 
+    def structural_call(self, category: Ref, chain: tuple[Ref, ...]) -> Candidate:
+        """General unary typed composition shared by structural inference and planning."""
+        if not 1 <= len(chain) <= 6:
+            raise ValidationError("A structural call tree requires 1--6 constituents")
+        for operation in chain:
+            node = self.knowledge.get(operation)
+            p = as_record(node.fields.get("procedure"))
+            if (
+                node.role != Role.OPERATION
+                or p["inputs"] != (Endpoint(Role.DATA, category).to_record(),)
+                or p["result"] != category
+                or p["update"] is not None
+            ):
+                raise ValidationError(
+                    "Structural composition constituents require the same typed unary interface"
+                )
+        expression = argument(0)
+        for operation in chain:
+            expression = call(operation, expression)
+
+        def publish(k: Athanor) -> tuple[Ref, Ref]:
+            operation = k.teach_operation(
+                "constructed structural process",
+                Procedure(
+                    (Endpoint(Role.DATA, category),),
+                    category,
+                    {"value": field(expression, "value")},
+                ),
+                source="bounded native structural call construction",
+            )
+            hypothesis = k.create(
+                fields=record(
+                    kind="structural_hypothesis",
+                    operation=operation,
+                    expression=expression,
+                    dependencies=chain,
+                    calls=len(chain),
+                    status="unknown",
+                    support=(),
+                    errors=(),
+                    results=(),
+                    contradictions=(),
+                    proposal_errors=(),
+                ),
+                source="structural process proposal",
+            )
+            return operation, hypothesis
+
+        operation, hypothesis = self.knowledge.transaction(publish)
+        return Candidate(operation, hypothesis, expression, chain, len(chain))
+
     def _vectors(self, candidates: list[Candidate]) -> torch.Tensor:
         options = []
         for candidate in candidates:
@@ -483,9 +535,34 @@ class Processes:
         """Measured discrepancy teaches shared selection; retained native scores constrain drift."""
         if not self.candidates or not self.inputs:
             return
-        model = self.observer.observer.model
         if type(steps) is not int or not 1 <= steps <= 1000:
             raise ValidationError("Process learning requires bounded positive updates")
+        with torch.no_grad():
+            vectors = self._vectors(self.candidates).detach()
+            context = self.observer.observer.state.context.detach() * 0.05
+            targets = torch.tensor(
+                [
+                    1 / (1 + max(c.errors, default=1) / max(self.tolerance, 1e-9)) - c.calls * 0.01
+                    for c in self.candidates
+                ]
+            )
+        self.train_priority(trainer, vectors, targets, context, steps=steps)
+
+    def train_priority(
+        self,
+        trainer: GroundedTrainer,
+        vectors: torch.Tensor,
+        targets: torch.Tensor,
+        context: torch.Tensor,
+        *,
+        steps: int = 40,
+    ) -> None:
+        """Shared measured-error consolidation for numeric and structural inquiry."""
+        if trainer.observer is not self.observer:
+            raise ValidationError("Consolidation requires the owned grounded trainer")
+        if type(steps) is not int or not 1 <= steps <= 1000:
+            raise ValidationError("Bounded positive learning updates required")
+        model = self.observer.observer.model
         if self._retained is None:
             from athanor.neural import Observation
             from athanor.neural.curriculum import situation
@@ -524,14 +601,6 @@ class Processes:
                 torch.cat(scores_saved),
             )
         with torch.no_grad():
-            vectors = self._vectors(self.candidates).detach()
-            context = self.observer.observer.state.context.detach() * 0.05
-            targets = torch.tensor(
-                [
-                    1 / (1 + max(c.errors, default=1) / max(self.tolerance, 1e-9)) - c.calls * 0.01
-                    for c in self.candidates
-                ]
-            )
             trace = (
                 []
                 if self.observer.observer._output is None

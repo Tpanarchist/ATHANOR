@@ -92,7 +92,9 @@ def save_checkpoint(observer: Observer, path: Path, *, trainer: Trainer | None =
     tensor_buffer = io.BytesIO()
     torch.save(payload, tensor_buffer)
     tensor_bytes = tensor_buffer.getvalue()
-    knowledge_bytes = observer.knowledge.dumps().encode("utf-8")
+    # Preserve every native entry and digest without human-readable indentation.
+    # Expanded inquiry history still obeys the unchanged 256 MiB import budget.
+    knowledge_bytes = observer.knowledge.dumps(compact=True).encode("utf-8")
     observation = observer.observation
     metadata = {
         "version": 2 if observer.active_operations is None else VERSION,

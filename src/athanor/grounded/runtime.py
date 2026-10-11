@@ -85,13 +85,19 @@ def intent_activation(
     else:
         node = knowledge.get(frame.refs[frame.query_index])
         keys = ("kind", "goal", "visible", "depth_known", "horizontal", "distance", "contact")
-        compact = replace(node, fields=record({key: node.fields[key] for key in keys}))
+        compact = (
+            node
+            if node.fields.get("kind") == "structural_request"
+            else replace(node, fields=record({key: node.fields[key] for key in keys}))
+        )
         features = torch.tensor(structural_features(compact, observation=True))
     return cast(torch.Tensor, model.encoder(features)).tanh()
 
 
 def contextual_frame(frame: Frame, knowledge: Athanor) -> Frame:
     node = knowledge.get(frame.refs[frame.query_index])
+    if node.fields.get("kind") == "structural_request":
+        return frame
     keys = ("kind", "goal", "visible", "depth_known", "horizontal", "distance", "contact")
     compact = replace(node, fields=record({key: node.fields[key] for key in keys}))
     return replace(
@@ -174,6 +180,9 @@ class GroundedObserver:
         from .processes import Processes
 
         self.processes = Processes(self)
+        from .induction import Induction
+
+        self.induction = Induction(self)
         self.goal = "observe"
         self.target: Ref | None = None
         self.prediction: tuple[float, ...] | None = None
@@ -421,6 +430,8 @@ class GroundedObserver:
         )
 
     def observe(self, frame: SensorFrame) -> Decision:
+        if self.induction.query is not None:
+            self.observer.active_operations = tuple(self.operations.values())
         self.last_percepts = perceive(self.observer.sensory, frame)
         active = self._map(frame, self.last_percepts)
         inquiries = self.discovery.prepare(frame)
@@ -434,7 +445,8 @@ class GroundedObserver:
             relationships=tuple(self.motion_evidence),
             hypotheses=tuple(t.ref for t in self.tracks if t.status != "visible")
             + inquiries
-            + self.processes.active,
+            + self.processes.active
+            + self.induction.active,
             inquiry_options=self.discovery.options,
         )
         self.last_request = self.knowledge.create(

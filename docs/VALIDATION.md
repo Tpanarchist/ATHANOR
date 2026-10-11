@@ -541,3 +541,98 @@ conditional/accumulated procedures can participate, and acquired procedures comp
 The acceptance establishes direct body-feedback discovery and structured digital transfer;
 it does not establish nonlinear discovery from uncertain camera depth, general inverse
 discovery, unrestricted synthesis, automatic arbitrary-unit conversion, or unbounded scale.
+
+
+## Goal 007: native concept formation and structural induction, 0.7.0
+
+The full preservation regression completes **213 tests successfully** in **2,231.184
+seconds**, including all three earlier longer neural, semantic and grounded training
+acceptances, Goal 005 autonomous discovery, Goal 006 recursive process acceptance and
+the complete Goal 007 cross-domain session. The final unknown-whole-outcome edge is
+subsequently covered by both current-source and installed-wheel 30-test contract suites.
+Ruff lint/format, strict mypy over **46 source files**, offline lock consistency and
+wheel/source-distribution builds pass. The local editable installation reports 0.7.0.
+
+The continuous session restores the actual 0.6.0 `process-observer.athanor`, including
+its learned model, optimizer and recursive processes. Independently generated anonymous
+relational observations and raw symbolic rasters supply examples only; the observer has
+no generator reference, hidden program, supplied concept name or correct grouping.
+No official ARC data, published puzzles, solution material or benchmark campaign is used.
+
+The session forms **69 operational concepts** (**40 supported, 29 provisional**), including a recurring unnamed directed
+participation distinction used by the acquired relational transformation. The relational
+inquiry constructs **765 candidates**, qualifying **763** inconsistent explanations.
+Its fresh symbolic instance is exact. The separate spatial inquiry evaluates **1,024
+candidates** and predicts a fresh raw raster exactly. A raster representation then reuses
+the same learned relational concept by pinned reference through generic native adapters;
+that inquiry evaluates **2,048 candidates** and its held-out output is also exact.
+A single symmetric demonstration retains **four fitting alternatives** without adoption.
+
+A goal requires the learned eligible initial participants, their cardinality and ordering
+by an observed anonymous property. Its acquired native plan contains **two transformations**.
+Three distinct later inputs satisfy the original native goal conditions and support the
+plan within that schema. A composite concept calls earlier concepts by reference. Saving
+and restoring retains native concepts/rules/tasks/history, shared parameters, optimizer,
+recurrent state and capability records. After restoration another fresh goal is solved
+without replaying the original demonstration examples.
+
+There are still **107,980 shared parameters**. Structural consolidation changes only the
+four existing scorer tensors, allocates no additional network, and performs **960** new
+optimizer updates, continuing from **5,485 to 6,445**. Earlier structural/semantic proposal
+measurements remain **1.0 before and after** on the retained sets. These are proposal
+measurements, not universal execution success: the structural set's executable/exact-result
+rate remains **19/48** because it includes unsupported and incompatible situations.
+The previously acquired Goal 006 recursive process still executes exact **1/4**.
+
+**30 ordinary structural and induction tests pass**, covering typed/native binding,
+directed and noncommutative relationships, generic grouping/raster conversion, exact
+JSON boundaries, unknown membership, ambiguity, bounded goals, provisional plans,
+contradictions and dependency qualification. A later measured example can remove the
+preferred rule, select a surviving explanation with the shared scorer, revoke the
+rejected procedure and restore the revised state. Repeating one observation cannot
+establish concept support, and repeating one application cannot establish generalization.
+An unsupported neural first choice abstains rather than receiving a symbolic substitution.
+Unknown whole outcomes remain unresolved hypotheses, with no positive reliability signal
+or support for adoption; absent cells within a known raster remain valid observations.
+Active-query checkpoint restoration and the exact next shared training update are tested.
+Malformed inquiry metadata and invalid native/resource executions are rejected.
+The final unknown-whole-outcome edge is covered by subsequent **30-test current-source
+and installed-wheel contract runs**; the longer full regression began before that edge
+was tightened. The change does not alter the known-outcome acceptance paths.
+
+A clean installed 0.7 wheel runs **108 dependency-free tests successfully**, with the
+**105 neural tests skipped** because that environment deliberately lacks PyTorch. A
+separate installed-wheel continuation reuses the local neural extra while resolving
+Athanor from the wheel: an unseen visual input, restored goal procedure, newly solved
+goal, exact **1/4**, another save/restore and optimizer update **6,525** all pass.
+
+The actual viewer is paused at `http://127.0.0.1:8766/`. Its problem editor applies a
+restored learned rule to a new raw raster and displays the actual result. The headless
+problem file path also produces an exact fresh measured visual result, records its
+native application and saves the continuation. Structural inspection is read-only.
+
+Compact native JSON preserves every entry, revision, receipt and semantic digest while
+removing indentation. The completed checkpoint is **3.56 MiB** compressed and its native
+history member is **86.05 MiB**, within the unchanged **256 MiB** import budget. Compact
+and readable snapshots restore identical native state; evidence is not discarded.
+Checkpoint format 5 retains all earlier format readers. Native execution authority,
+atomicity, provenance and graph/history activation budgets remain in force.
+
+Evidence artifacts under `artifacts/` include:
+
+- `concept-observer.athanor`, `concept-observer.report.json`, `concept-run.log`.
+- `goal007-contracts.log`, `goal007-regression.log`.
+- `goal007-wheel-tests.log`, `goal007-installed-contracts.log`,
+  `goal007-installed-continuation.log`,
+  `concept-installed-continued.athanor`, `goal007-build.log`.
+- `goal007-headless-problem.json`, `goal007-headless.json`,
+  `concept-headless-continued.athanor`.
+- `concept-viewer.athanor`, `concept-viewer.png`, `concept-viewer-saved.png`,
+  `goal007-viewer.log`.
+
+The demonstrated grammar is finite: observed field predicates, ordered peer relations,
+directed participation, connectivity, exact collection/geometry operations and bounded
+native compositions. Raw symbolic raster learning does not establish new camera-object
+semantics. Supported evidence is scoped; a failed bounded search remains unknown.
+This acceptance establishes operational representation/rule acquisition and reuse within
+those limits, not unrestricted synthesis, autonomous new primitives or general intelligence.

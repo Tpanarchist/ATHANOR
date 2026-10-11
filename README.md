@@ -34,6 +34,30 @@ same process through different representations. Acquired processes become consti
 of larger compositions; contradictions qualify dependent knowledge. No new neural
 parameter block is allocated for an acquired process.
 
+Goal 007 (0.7.0) extends that common machinery to operational concept formation,
+structural variables, multi-example transformation inference and bounded goal planning.
+Anonymous relational observations and raw symbolic rasters can produce unnamed native
+concepts; inferred procedures apply to unseen participants and compose with acquired
+knowledge. Alternatives, contradictions, schemas and applicability remain explicit.
+The same shared recurrent model ranks proposals, guides composition, selects tests and
+learns from execution. Concepts, tasks, procedures and learning survive restoration.
+
+Run the continuous independent relational/spatial learning session from the real Goal 006
+checkpoint, then open its acquired knowledge:
+
+```powershell
+.venv\Scripts\python.exe -m athanor.grounded.induction_demo
+.venv\Scripts\python.exe -m athanor.grounded.app --checkpoint artifacts\concept-observer.athanor --paused --port 8766
+```
+
+[Concept contracts](docs/CONCEPT_INDUCTION.md), [problem API](docs/CONCEPT_API.md),
+[shared training and acceptance](docs/CONCEPT_TRAINING.md), and
+[measured validation](docs/VALIDATION.md) describe the implementation and limits.
+The viewer and headless problem file interface execute the same actual runtime.
+The initial structural grammar and computation are bounded. This establishes operational
+concept/rule acquisition within that scope, not unrestricted reasoning or general intelligence.
+Official ARC datasets and published puzzles remain isolated for later authorized assessment.
+
 Run the continuous physical, digital-interface and recursive-reuse session from the
 existing Goal 005 checkpoint:
 

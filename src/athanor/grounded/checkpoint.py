@@ -21,6 +21,7 @@ from athanor.world import SensorFrame, World
 from athanor.world.engine import ACTIONS
 
 from .discovery import Discovery
+from .induction import Induction
 from .perception import SensoryEncoder, perceive
 from .processes import Processes
 from .runtime import GroundedObserver, PixelObserver, Runtime, Track, contextual_frame
@@ -119,7 +120,8 @@ def save(runtime: Runtime, path: str | Path, *, trainer: GroundedTrainer | None 
             payload,
         )
         metadata = {
-            "version": 4,
+            "version": 5,
+            "induction": grounded.induction.metadata(),
             "discovery": grounded.discovery.metadata(),
             "processes": grounded.processes.metadata(),
             "transition": transition_meta,
@@ -214,15 +216,17 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             "paused",
             "running",
         }
-        if metadata.get("version") in (3, 4):
+        if metadata.get("version") in (3, 4, 5):
             expected_metadata.add("discovery")
-        if metadata.get("version") == 4:
+        if metadata.get("version") in (4, 5):
             expected_metadata.add("processes")
+        if metadata.get("version") == 5:
+            expected_metadata.add("induction")
         if (
             type(metadata) is not dict
             or set(metadata) != expected_metadata
             or type(metadata["version"]) is not int
-            or metadata["version"] not in (1, 2, 3, 4)
+            or metadata["version"] not in (1, 2, 3, 4, 5)
         ):
             raise PersistenceError("Unsupported grounded checkpoint version")
         if (
@@ -368,8 +372,13 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
         )
         grounded.processes = (
             Processes.restore(grounded, metadata["processes"])
-            if metadata["version"] == 4
+            if metadata["version"] >= 4
             else Processes(grounded)
+        )
+        grounded.induction = (
+            Induction.restore(grounded, metadata["induction"])
+            if metadata["version"] >= 5
+            else Induction(grounded)
         )
         if (
             metadata["version"] >= 4

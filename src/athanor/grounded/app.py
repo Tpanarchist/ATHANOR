@@ -10,6 +10,7 @@ from pathlib import Path
 import torch
 
 from athanor import AthanorError, Record, Ref, ValidationError, record
+from athanor.values import as_record, freeze
 from athanor.world import Action
 from athanor.world.engine import vector
 
@@ -25,8 +26,36 @@ def json_value(value: object) -> object:
         return str(value)
     if isinstance(value, Record):
         return {key: json_value(item) for key, item in value.items()}
-    if isinstance(value, tuple):
+    if isinstance(value, (tuple, list)):
         return [json_value(item) for item in value]
+    return value
+
+
+def display_fields(value: Record) -> dict[str, object]:
+    return {k: json_value(v) for k, v in value.items()}
+
+
+def exact_structural(value: object) -> object:
+    """Round-trip problem values without rounding rational observations."""
+    if isinstance(value, Fraction):
+        return int(value) if value.denominator == 1 else {"$number": str(value)}
+    if isinstance(value, Ref):
+        return str(value)
+    if isinstance(value, (Record, dict)):
+        return {k: exact_structural(v) for k, v in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [exact_structural(v) for v in value]
+    return value
+
+
+def structural_fields(value: Record) -> dict[str, object]:
+    return {k: exact_structural(v) for k, v in value.items()}
+
+
+def bound(data: dict[str, object], key: str, default: int) -> int:
+    value = data.get(key, default)
+    if type(value) is not int:
+        raise ValidationError("Resource limits require integers")
     return value
 
 
@@ -46,6 +75,20 @@ def packet(value: object) -> Record:
     return record(converted)
 
 
+def structural_input(value: object) -> object:
+    if isinstance(value, dict):
+        if set(value) == {"$number"}:
+            return Fraction(value["$number"])
+        if set(value) == {"$ref"} and isinstance(value["$ref"], str):
+            namespace, local = value["$ref"].rsplit(":", 1)
+            identity, revision = local.rsplit("@", 1)
+            return Ref(identity, int(revision), namespace)
+        return {k: structural_input(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return tuple(structural_input(v) for v in value)
+    return value
+
+
 class Application:
     def __init__(
         self, runtime: Runtime, checkpoint: Path, trainer: GroundedTrainer | None = None
@@ -62,11 +105,56 @@ class Application:
             action, decision = o.propose(commit=False)
             sensor = o.observer.sensor
             return {
-                "version": "0.6.0",
+                "version": "0.7.0",
                 "tick": r.world.tick,
                 "paused": r.paused,
                 "running": r.running,
                 "training_updates": self.trainer.updates,
+                "induction": {
+                    "status": o.induction.status,
+                    "selected": exact_structural(o.induction.selected),
+                    "neural_updates": o.induction.neural_updates,
+                    "resources": o.induction.resource.copy(),
+                    "query": None
+                    if o.induction.query is None
+                    else exact_structural(o.knowledge.get(o.induction.query).fields),
+                    "concepts": [
+                        dict(reference=str(v), **structural_fields(o.knowledge.get(v).fields))
+                        for v in o.induction.concepts
+                    ],
+                    "rules": [
+                        dict(reference=str(v), **structural_fields(o.knowledge.get(v).fields))
+                        for v in o.induction.rules
+                    ],
+                    "tasks": [
+                        dict(reference=str(v), **structural_fields(o.knowledge.get(v).fields))
+                        for v in o.induction.tasks[-4:]
+                    ],
+                    "candidates": [
+                        dict(
+                            structural_fields(o.knowledge.get(c.hypothesis).fields),
+                            operation=str(c.operation),
+                            score=c.score,
+                        )
+                        for c in sorted(
+                            o.induction.candidates, key=lambda c: c.score, reverse=True
+                        )[:12]
+                    ],
+                    "candidate_count": len(o.induction.candidates),
+                    "qualified_count": sum(c.status == "qualified" for c in o.induction.candidates),
+                    "examples": [
+                        exact_structural(o.knowledge.get(v).fields) for v in o.induction.examples
+                    ],
+                    "observations": [
+                        exact_structural(o.knowledge.get(v).fields)
+                        for v in o.induction.observations[-4:]
+                    ],
+                    "history": [
+                        exact_structural(o.knowledge.get(v).fields)
+                        for v in o.induction.history[-8:]
+                    ],
+                    "capabilities": {k: v.copy() for k, v in o.induction.capabilities.items()},
+                },
                 "sensor": sensor_data(sensor),
                 "territory": {
                     "body": r.world.position,
@@ -208,7 +296,117 @@ class Application:
             r = self.runtime
             p = r.observer.processes
             message = "Runtime updated"
-            if op == "start":
+            if op in {
+                "form_concepts",
+                "infer_rule",
+                "apply_rule",
+                "recognize_concept",
+                "solve_problem",
+                "choose_structural_test",
+            }:
+                i = r.observer.induction
+                structural_result: object = None
+                if op == "form_concepts":
+                    structural_rows = data.get("observations")
+                    if not isinstance(structural_rows, list):
+                        raise ValidationError("Provide structural observations")
+                    structural_result = i.form_concepts(
+                        tuple(
+                            freeze(structural_input(structural_value))
+                            for structural_value in structural_rows
+                        )
+                    )
+                elif op == "infer_rule":
+                    structural_rows = data.get("examples")
+                    if not isinstance(structural_rows, list) or any(
+                        not isinstance(structural_value, dict)
+                        for structural_value in structural_rows
+                    ):
+                        raise ValidationError("Provide structured before/after examples")
+                    structural_pairs = tuple(
+                        (
+                            freeze(structural_input(structural_value["before"])),
+                            freeze(structural_input(structural_value["after"])),
+                        )
+                        for structural_value in structural_rows
+                    )
+                    structural_result = i.infer(
+                        structural_pairs,
+                        self.trainer,
+                        max_calls=bound(data, "max_calls", 2),
+                        max_candidates=bound(data, "max_candidates", 384),
+                        beam=bound(data, "beam", 32),
+                    )
+                elif op in {"apply_rule", "recognize_concept"}:
+                    pool = i.rules if op == "apply_rule" else i.concepts
+                    ref = next(
+                        (
+                            structural_value
+                            for structural_value in pool
+                            if str(structural_value) == data.get("reference")
+                        ),
+                        None,
+                    )
+                    if ref is None:
+                        raise ValidationError("Provide an acquired pinned structural reference")
+                    structural_value = freeze(structural_input(data["input"]))
+                    structural_result = (
+                        i.apply(
+                            ref,
+                            structural_value,
+                            expected=freeze(structural_input(data["expected"]))
+                            if "expected" in data
+                            else None,
+                            measured="expected" in data,
+                        )
+                        if op == "apply_rule"
+                        else i.recognize(ref, structural_value)
+                    )
+                elif op == "choose_structural_test":
+                    structural_rows = data.get("inputs")
+                    if not isinstance(structural_rows, list):
+                        raise ValidationError("Provide bounded candidate test inputs")
+                    structural_result = i.choose_test(
+                        tuple(
+                            freeze(structural_input(structural_value))
+                            for structural_value in structural_rows
+                        )
+                    )
+                else:
+                    structural_raw = freeze(structural_input(data["conditions"]))
+                    if not isinstance(structural_raw, tuple):
+                        raise ValidationError("A problem needs structural conditions")
+                    conditions = tuple(
+                        as_record(structural_value) for structural_value in structural_raw
+                    )
+                    requested = data.get("operations")
+                    operations = None
+                    if requested is not None:
+                        if not isinstance(requested, list) or not requested:
+                            raise ValidationError(
+                                "Operations must be a nonempty list of available references"
+                            )
+                        indexed = {str(v): v for v in i.available()}
+                        if any(not isinstance(v, str) or v not in indexed for v in requested):
+                            raise ValidationError(
+                                "Goal operations must be currently applicable native knowledge"
+                            )
+                        operations = tuple(indexed[v] for v in requested)
+                    structural_result = i.solve(
+                        freeze(structural_input(data["input"])),
+                        conditions,
+                        self.trainer,
+                        max_depth=bound(data, "max_depth", 3),
+                        max_nodes=bound(data, "max_nodes", 256),
+                        operations=operations,
+                    )
+                return {
+                    "message": "Structural knowledge updated"
+                    if structural_result is not None or i.status == "goal_supported"
+                    else "Structural inquiry remains uncertain",
+                    "result": exact_structural(structural_result),
+                }
+            elif op == "start":
                 r.running, r.paused = True, False
                 if r.observer.discovery.status == "paused":
                     r.observer.discovery.resume()
@@ -224,7 +422,7 @@ class Application:
                 if p.status == "running":
                     p.status = "paused"
             elif op == "discover_processes":
-                budget, calls = data.get("budget", 12), data.get("max_calls", 2)
+                budget, calls = data.get("budget", 12), bound(data, "max_calls", 2)
                 if type(budget) is not int or type(calls) is not int:
                     raise ValidationError("Process resources require integers")
                 r.start_process_discovery(
@@ -436,6 +634,9 @@ def main() -> None:
     parser.add_argument(
         "--checkpoint", type=Path, default=Path("artifacts/grounded-observer.athanor")
     )
+    parser.add_argument(
+        "--problem", type=Path, help="JSON command or command list using the same problem interface"
+    )
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--paused", action="store_true", help="Open with inquiry execution paused")
@@ -460,6 +661,13 @@ def main() -> None:
         runtime.start_process_discovery(max(1, args.steps))
     elif args.explore:
         runtime.start_discovery(max(1, args.steps), focus=args.focus)
+    if args.problem:
+        commands = json.loads(args.problem.read_text())
+        commands = commands if isinstance(commands, list) else [commands]
+        if not 1 <= len(commands) <= 64 or any(not isinstance(v, dict) for v in commands):
+            raise ValidationError("Provide 1--64 structured problem commands")
+        for command in commands:
+            application.command(command)
     if args.headless:
         if args.steps < 0:
             parser.error("Steps must be nonnegative")

@@ -217,3 +217,28 @@ qualify their acquired dependents and bindings without erasing pinned histories.
 training retains earlier proposal scores; dynamic self-map counts reflect actual measured
 recognition/binding/execution/transfer. Grounded format 4 retains these additions and restores
 formats 1â€“3 unchanged. See PROCESS_API for limits and operational contracts.
+
+
+## Goal 007: structural inquiry on the common machinery
+
+`structural.py` supplies exact bounded collection, relation, graph and raster algorithms
+inside the existing Procedure evaluator. It owns neither learning nor planning. Native
+scoped variables distinguish input, participant, index and ordered peer roles. Endpoint,
+shape, value type, resource and transaction validation remain the cornerstone's authority.
+
+`GroundedObserver.induction` records operational distinctions as native formed concepts,
+uses the Goal 006 typed unary call constructor for examples and goals, and consolidates
+measured priorities through the same owned trainer, encoder, recurrent context and scorer.
+Every constituent, adapter, hypothesis and acquired plan is a pinned native participant.
+No source-code execution, extra network, RAG or oracle access enters inference.
+
+Objectives bind an explicit initial/current frame. A learned relational concept defines
+eligible initial participants while native goal predicates test the transformed state.
+This preserves reference meaning when the current graph loses edges or changes ordering.
+Bounded neural-guided transition search can acquire a reusable variable procedure;
+actual goals and distinct later examples qualify its applicability. Prediction, execution,
+transfer and reliable generalization have separate capability evidence.
+
+Format 5 extends native and shared neural persistence, reading formats 1–4. Active inquiry
+remains within the original graph/history budgets; complete audit history stays stored.
+See CONCEPT_INDUCTION, CONCEPT_API and CONCEPT_TRAINING for precise contracts and limits.
