@@ -183,6 +183,9 @@ class GroundedObserver:
         from .induction import Induction
 
         self.induction = Induction(self)
+        from .representations import Representations
+
+        self.representations = Representations(self)
         self.goal = "observe"
         self.target: Ref | None = None
         self.prediction: tuple[float, ...] | None = None
@@ -446,7 +449,8 @@ class GroundedObserver:
             hypotheses=tuple(t.ref for t in self.tracks if t.status != "visible")
             + inquiries
             + self.processes.active
-            + self.induction.active,
+            + self.induction.active
+            + self.representations.active,
             inquiry_options=self.discovery.options,
         )
         self.last_request = self.knowledge.create(

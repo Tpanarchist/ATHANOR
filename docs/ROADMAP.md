@@ -64,7 +64,7 @@ transfers it to ordered numerical packets and builds a larger repeated compositi
 See RECURSIVE_PROCESSES, PROCESS_API and VALIDATION. Initial scope is exact typed quantity
 call trees, not unrestricted synthesis, universal transfer or calibrated uncertainty.
 
-## 007: Concept formation and general rule induction � implemented in 0.7.0
+## 007: Concept formation and general rule induction — implemented in 0.7.0
 
 Native operational distinctions, typed scoped roles, directed relational structures,
 raw symbolic rasters, example-qualified transformations and bounded structural goal
@@ -76,13 +76,16 @@ See CONCEPT_API, CONCEPT_TRAINING and VALIDATION for measured scope and limitati
 A finite initial grammar is operational; unrestricted representation invention,
 autonomous architecture rewriting and ARC assessment remain future work.
 
-## 008: Controlled process refinement
+## 008: Representation invention and adaptive abstraction — implemented in 0.8.0
 
-Represent procedure/representation proposals as structural data. Validate adoption
-against held-out execution, retention and resource contracts, with rollback and
-versioned usage. Review changes to the trusted native validator/interpreter separately.
-The cornerstone makes operations reflectable; the neural observer can select them.
-Neither milestone implements autonomous architecture rewriting.
+First-class executable interpretations, derived relationships/properties, induced groups,
+reopenable fragments, empirical utility, recurrent selection and bounded representation
+revision extend the existing observer. RGB/structural observations share acquired knowledge
+without supplied semantic groupings. Alternatives, informative tests, contradictions,
+typed composition, self-map outcomes and neural/optimizer/inquiry restoration are integrated.
+See REPRESENTATION_INVENTION, REPRESENTATION_API, REPRESENTATION_TRAINING and
+REPRESENTATION_VALIDATION. Initial scope is a finite proposal algebra with evidence-qualified
+reuse; architecture rewriting, unrestricted representations and ARC assessment remain future work.
 
 ## 009: Broader digital-universe integration
 

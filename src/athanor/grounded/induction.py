@@ -205,13 +205,17 @@ class Induction:
             fields=record(
                 kind="structural_request",
                 value=value,
-                hypotheses=self.active[:4],
+                hypotheses=(
+                    getattr(getattr(self.observer, "representations", None), "active", ())
+                    + self.active
+                )[:4],
                 objective=self.tasks[-1] if self.tasks else None,
             ),
             source=source,
         )
         relevant = []
-        for hypothesis in self.active[:4]:
+        for hypothesis in as_tuple(self.knowledge.get(self.query).fields["hypotheses"]):
+            assert isinstance(hypothesis, Ref)
             operation = self.knowledge.get(hypothesis).fields.get("operation")
             if isinstance(operation, Ref):
                 relevant.append(operation)

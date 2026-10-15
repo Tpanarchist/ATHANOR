@@ -35,8 +35,14 @@ ARITIES = {
     "sort": 2,
     "map": 2,
     "exists": 2,
+    "relate": 2,
+    "groups": 1,
+    "flatten": 1,
+    "sum": 1,
+    "minimum": 1,
+    "maximum": 1,
 }
-SCOPED = frozenset({"select", "sort", "map", "exists"})
+SCOPED = frozenset({"select", "sort", "map", "exists", "relate"})
 
 
 def validate_value(value: Value) -> None:
@@ -116,8 +122,14 @@ def reindex(value: Value, indices: list[int]) -> Value:
         return tuple(items[i] for i in indices)
     _, edges = graph(value)
     reverse = {old: new for new, old in enumerate(indices)}
+    metadata = dict(value)
+    if "source_indices" in value:
+        origins = as_tuple(value["source_indices"])
+        if len(origins) != len(items):
+            raise ExecutionError("Participant provenance must cover the source collection")
+        metadata["source_indices"] = tuple(origins[i] for i in indices)
     return record(
-        dict(value),
+        metadata,
         nodes=tuple(items[i] for i in indices),
         edges=tuple((reverse[a], reverse[b]) for a, b in edges if a in reverse and b in reverse),
     )
@@ -131,6 +143,82 @@ def evaluate(
     tick: Callable[[], None],
 ) -> Value:
     source = child(expressions[0], scope)
+    if operator == "relate":
+        items = collection(source)
+        if len(items) > 128 or any(not isinstance(v, Record) for v in items):
+            raise ExecutionError("Relation construction requires at most 128 records")
+        edges_new = []
+        unknown = False
+        for i, own in enumerate(items):
+            for j, peer in enumerate(items):
+                tick()
+                if i == j:
+                    continue
+                local = dict(
+                    scope,
+                    root=source,
+                    item=own,
+                    index=Fraction(i),
+                    peer=peer,
+                    peer_index=Fraction(j),
+                )
+                result = child(expressions[1], local)
+                if result is None:
+                    unknown = True
+                elif type(result) is not bool:
+                    raise ExecutionError("A constructed relation requires boolean or unknown")
+                elif result:
+                    edges_new.append((i, j))
+                    if len(edges_new) > 1024:
+                        raise ExecutionError("Constructed relation exceeds edge budget")
+        if unknown:
+            return None
+        return record(nodes=items, edges=tuple(edges_new))
+    if operator == "groups":
+        nodes, edges = graph(source)
+        remaining = set(range(len(nodes)))
+        output_groups = []
+        while remaining:
+            found, group_pending = {min(remaining)}, [min(remaining)]
+            while group_pending:
+                current = group_pending.pop()
+                for a, b in edges:
+                    tick()
+                    neighbor = b if a == current else a if b == current else None
+                    if neighbor is not None and neighbor not in found:
+                        found.add(neighbor)
+                        group_pending.append(neighbor)
+            remaining -= found
+            # Each induced graph preserves its participants and ordered edges.
+            # Source indices remain explicit, rather than silently merging identities.
+            group_indices = sorted(found)
+            grouped = as_record(reindex(source, group_indices))
+            output_groups.append(
+                record(grouped, source_indices=grouped.get("source_indices", tuple(group_indices)))
+            )
+        return tuple(output_groups)
+    if operator in {"sum", "minimum", "maximum"}:
+        items = as_tuple(source)
+        for _ in items:
+            tick()
+        if any(v is None for v in items):
+            return None
+        if any(not isinstance(v, Fraction) for v in items):
+            raise ExecutionError("Numerical reductions require exact numbers")
+        numbers = tuple(v for v in items if isinstance(v, Fraction))
+        if operator == "sum":
+            return sum(numbers, Fraction(0))
+        return None if not numbers else min(numbers) if operator == "minimum" else max(numbers)
+    if operator == "flatten":
+        items = as_tuple(source)
+        output_flat = []
+        for raw in items:
+            for v in as_tuple(raw):
+                tick()
+                output_flat.append(v)
+                if len(output_flat) > 4096:
+                    raise ExecutionError("Flattening exceeds bounded size")
+        return tuple(output_flat)
     if operator in SCOPED:
         items = collection(source)
         output: list[Value] = []

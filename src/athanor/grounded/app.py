@@ -9,9 +9,9 @@ from pathlib import Path
 
 import torch
 
-from athanor import AthanorError, Record, Ref, ValidationError, record
-from athanor.values import as_record, freeze
-from athanor.world import Action
+from athanor import AthanorError, Record, Ref, ValidationError, Value, record
+from athanor.values import as_record, as_ref, freeze
+from athanor.world import Action, SensorFrame
 from athanor.world.engine import vector
 
 from .checkpoint import restore, save, sensor_data
@@ -105,7 +105,7 @@ class Application:
             action, decision = o.propose(commit=False)
             sensor = o.observer.sensor
             return {
-                "version": "0.7.0",
+                "version": "0.8.0",
                 "tick": r.world.tick,
                 "paused": r.paused,
                 "running": r.running,
@@ -154,6 +154,51 @@ class Application:
                         for v in o.induction.history[-8:]
                     ],
                     "capabilities": {k: v.copy() for k, v in o.induction.capabilities.items()},
+                },
+                "representations": {
+                    "status": o.representations.status,
+                    "selected": exact_structural(o.representations.selected),
+                    "active": exact_structural(o.representations.active),
+                    "alternatives": exact_structural(o.representations.alternatives),
+                    "search": o.representations.search.copy(),
+                    "neural_updates": o.representations.neural_updates,
+                    **{
+                        name: [
+                            dict(reference=str(v), **structural_fields(o.knowledge.get(v).fields))
+                            for v in getattr(o.representations, name)[-32:]
+                        ]
+                        for name in (
+                            "representations",
+                            "observations",
+                            "concepts",
+                            "fragments",
+                            "interpretations",
+                            "tasks",
+                            "history",
+                            "evidence",
+                        )
+                    },
+                    "counts": {
+                        name: len(getattr(o.representations, name))
+                        for name in ("representations", "observations", "concepts", "fragments")
+                    },
+                    "latest_interpretation": None
+                    if not o.representations.interpretations
+                    else {
+                        "reference": str(o.representations.interpretations[-1]),
+                        "source": exact_structural(
+                            o.representations.raw(
+                                as_ref(
+                                    o.knowledge.get(o.representations.interpretations[-1]).fields[
+                                        "observation"
+                                    ]
+                                )
+                            )
+                        ),
+                        "value": exact_structural(
+                            o.representations.raw(o.representations.interpretations[-1])
+                        ),
+                    },
                 },
                 "sensor": sensor_data(sensor),
                 "territory": {
@@ -296,6 +341,156 @@ class Application:
             r = self.runtime
             p = r.observer.processes
             message = "Runtime updated"
+            if op in {
+                "invent_representation",
+                "interpret",
+                "representation_relationship",
+                "revise_representation",
+                "form_representation_concept",
+                "recognize_representation_concept",
+                "compose_representation",
+                "choose_representation_test",
+                "solve_represented_problem",
+                "observe_camera",
+            }:
+                representations = r.observer.representations
+
+                def input_value(value: object) -> Value:
+                    return freeze(structural_input(value))
+
+                def observation_values() -> tuple[Value, ...]:
+                    values = data.get("observations")
+                    if not isinstance(values, list):
+                        raise ValidationError("Provide a bounded observation list")
+                    return tuple(input_value(v) for v in values)
+
+                def owned(name: str, pool: list[Ref]) -> Ref:
+                    representation_result = next(
+                        (v for v in pool if str(v) == data.get(name)), None
+                    )
+                    if representation_result is None:
+                        raise ValidationError("Provide a current acquired representation reference")
+                    return representation_result
+
+                representation_result: object = None
+                if op == "invent_representation":
+                    rows = data.get("examples")
+                    if not isinstance(rows, list) or any(not isinstance(v, dict) for v in rows):
+                        raise ValidationError("Provide measured left/right/equivalent examples")
+                    representation_result = representations.invent(
+                        tuple(
+                            (input_value(v["left"]), input_value(v["right"]), v["equivalent"])
+                            for v in rows
+                        ),
+                        self.trainer,
+                        max_depth=bound(data, "max_depth", 6),
+                        max_candidates=bound(data, "max_candidates", 96),
+                        beam=bound(data, "beam", 8),
+                    )
+                elif op == "interpret":
+                    representation_result = representations.interpret(
+                        owned("reference", representations.representations),
+                        input_value(data["input"]),
+                    )
+                elif op in {"representation_relationship", "revise_representation"}:
+                    left, right = input_value(data["left"]), input_value(data["right"])
+                    if op == "revise_representation":
+                        representations.revise(left, right, data["equivalent"])  # type: ignore[arg-type]
+                        representation_result = representations.selected
+                    else:
+                        representation_result = representations.relationship(left, right)
+                elif op == "form_representation_concept":
+                    representation_result = representations.form_concept(
+                        owned("reference", representations.representations),
+                        observation_values(),
+                    )
+                elif op == "recognize_representation_concept":
+                    expected = data.get("expected")
+                    if expected is not None and type(expected) is not bool:
+                        raise ValidationError(
+                            "Measured concept outcomes require boolean or unknown"
+                        )
+                    representation_result = representations.recognize(
+                        owned("reference", representations.concepts),
+                        input_value(data["input"]),
+                        expected=expected,
+                    )
+                elif op == "compose_representation":
+                    representation_result = representations.compose(
+                        owned("first", representations.representations),
+                        owned("second", representations.representations),
+                        observation_values(),
+                    )
+                elif op == "choose_representation_test":
+                    rows = data.get("pairs")
+                    if not isinstance(rows, list) or any(not isinstance(v, dict) for v in rows):
+                        raise ValidationError("Provide candidate observation pairs")
+                    representation_result = representations.choose_test(
+                        tuple((input_value(v["left"]), input_value(v["right"])) for v in rows)
+                    )
+                elif op == "observe_camera":
+                    camera_frame = (
+                        r.world.sense()
+                        if r.observer.observer.sensor is None
+                        else r.observer.observer.sensor
+                    )
+                    supplied = data.get("frame")
+                    if supplied is not None:
+                        if not isinstance(supplied, dict) or set(supplied) != {
+                            "tick",
+                            "width",
+                            "height",
+                            "left",
+                            "right",
+                            "focal",
+                            "baseline",
+                            "proprio",
+                            "executed",
+                        }:
+                            raise ValidationError("Provide raw stereo camera frame fields")
+                        camera_frame = SensorFrame(
+                            supplied["tick"],
+                            supplied["width"],
+                            supplied["height"],
+                            bytes.fromhex(supplied["left"]),
+                            bytes.fromhex(supplied["right"]),
+                            supplied["focal"],
+                            supplied["baseline"],
+                            tuple(supplied["proprio"]),
+                            supplied["executed"],
+                        )
+                    representation_result = representations.camera(
+                        camera_frame,
+                        eye=bound(data, "eye", 0),
+                        measurements=data.get("measurements", False),  # type: ignore[arg-type]
+                    )
+                else:
+                    conditions = input_value(data["conditions"])
+                    if not isinstance(conditions, tuple):
+                        raise ValidationError("Provide structural goal conditions")
+                    scope = data.get("operations")
+                    available_operations = None
+                    if scope is not None:
+                        indexed = {str(v): v for v in r.observer.induction.available()}
+                        if (
+                            not isinstance(scope, list)
+                            or not scope
+                            or any(not isinstance(v, str) or v not in indexed for v in scope)
+                        ):
+                            raise ValidationError("Provide available native operation references")
+                        available_operations = tuple(indexed[v] for v in scope)
+                    representation_result = representations.solve(
+                        input_value(data["input"]),
+                        tuple(as_record(v) for v in conditions),
+                        self.trainer,
+                        max_nodes=bound(data, "max_nodes", 64),
+                        max_depth=bound(data, "max_depth", 3),
+                        operations=available_operations,
+                    )
+                return {
+                    "message": "Representation inquiry updated",
+                    "result": exact_structural(representation_result),
+                }
             if op in {
                 "form_concepts",
                 "infer_rule",

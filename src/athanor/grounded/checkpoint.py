@@ -24,6 +24,7 @@ from .discovery import Discovery
 from .induction import Induction
 from .perception import SensoryEncoder, perceive
 from .processes import Processes
+from .representations import Representations
 from .runtime import GroundedObserver, PixelObserver, Runtime, Track, contextual_frame
 from .training import GroundedTrainer
 
@@ -120,7 +121,8 @@ def save(runtime: Runtime, path: str | Path, *, trainer: GroundedTrainer | None 
             payload,
         )
         metadata = {
-            "version": 5,
+            "version": 6,
+            "representations": grounded.representations.metadata(),
             "induction": grounded.induction.metadata(),
             "discovery": grounded.discovery.metadata(),
             "processes": grounded.processes.metadata(),
@@ -216,17 +218,19 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             "paused",
             "running",
         }
-        if metadata.get("version") in (3, 4, 5):
+        if metadata.get("version") in (3, 4, 5, 6):
             expected_metadata.add("discovery")
-        if metadata.get("version") in (4, 5):
+        if metadata.get("version") in (4, 5, 6):
             expected_metadata.add("processes")
-        if metadata.get("version") == 5:
+        if metadata.get("version") in (5, 6):
             expected_metadata.add("induction")
+        if metadata.get("version") == 6:
+            expected_metadata.add("representations")
         if (
             type(metadata) is not dict
             or set(metadata) != expected_metadata
             or type(metadata["version"]) is not int
-            or metadata["version"] not in (1, 2, 3, 4, 5)
+            or metadata["version"] not in (1, 2, 3, 4, 5, 6)
         ):
             raise PersistenceError("Unsupported grounded checkpoint version")
         if (
@@ -379,6 +383,11 @@ def restore(path: str | Path) -> tuple[Runtime, GroundedTrainer | None]:
             Induction.restore(grounded, metadata["induction"])
             if metadata["version"] >= 5
             else Induction(grounded)
+        )
+        grounded.representations = (
+            Representations.restore(grounded, metadata["representations"])
+            if metadata["version"] >= 6
+            else Representations(grounded)
         )
         if (
             metadata["version"] >= 4

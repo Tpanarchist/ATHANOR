@@ -288,3 +288,26 @@ Symbolic raster observations establish spatial structure and exact geometry in t
 milestone. They do not establish new camera perception semantics. No ARC data or published
 examples are accessed. Resource-bounded failures retain uncertainty; no absence proof or
 claim of unrestricted intelligence follows from this acceptance.
+
+## Goal 008: representation utility is evidence, not a descriptive label
+
+Representations are pinned native unary procedures with input/output contracts, explicit
+constituents, applicability, source observations, measured comparisons and revisions.
+Projection, relations, induced groups and arithmetic produce structures that change
+available computation. Concepts compare their executable interpretation with observed
+prototypes; higher-level interpretations compose through the existing call system.
+
+Exact installed computation, native knowledge, neural parameters, active interpretations,
+actual observations and evidence remain separate. Distinct positive and negative comparisons
+support useful distinctions. Partial discrepancy may guide a proposal but cannot establish
+final support. Neural ranking governs selection; evidence can require abstention.
+
+Fragments generalize only their required interfaces. Reuse is demonstrated by actual calls
+in another acquired process. Compression keeps source references and can be reopened.
+Cached immutable results reduce repeated computation without erasing receipts.
+Historical pins remain inspectable after qualification of dependent current knowledge.
+
+Bounded representation revision reuses native goal conditions and planning. Camera
+features come from existing learned perception, without object IDs or scene graph access.
+The acceptance demonstrates scoped cross-interface utility, not unrestricted object
+semantics, primitive invention, architecture rewriting or general intelligence.

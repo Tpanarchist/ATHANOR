@@ -239,6 +239,30 @@ Bounded neural-guided transition search can acquire a reusable variable procedur
 actual goals and distinct later examples qualify its applicability. Prediction, execution,
 transfer and reliable generalization have separate capability evidence.
 
-Format 5 extends native and shared neural persistence, reading formats 1�4. Active inquiry
+Format 5 extends native and shared neural persistence, reading formats 1–4. Active inquiry
 remains within the original graph/history budgets; complete audit history stays stored.
 See CONCEPT_INDUCTION, CONCEPT_API and CONCEPT_TRAINING for precise contracts and limits.
+
+## Executable representation construction — Goal 008
+
+`GroundedObserver.representations` extends the same native process and recurrent
+induction machinery. Observed types/keys propose field projection, scoped pair relations,
+induced groups, reductions, derived coordinate systems, ordered patterns and reusable
+fragments. Exact algorithms run inside the cornerstone; learned ranking controls bounded
+proposal refinement and selection. There is no alternative interpreter or task network.
+
+Observation bindings, RGB captures, representation definitions, interpretation receipts,
+measured correspondence outcomes, concepts and tasks are distinct native participants.
+Interpretations reference their source and actual typed execution result. Cached pinned
+results have explicit reuse receipts. Groups preserve source indices through ordering and
+further grouping. Abstractions retain reopenable constituent calls and evidence boundaries.
+
+Compatible native operations support an initial goal trial; failed trials can activate a
+different acquired interpretation and compose it with those same operations. Global node
+budgets bound all trials. Competing interpretations yield unknown when predictions
+disagree, and informative tests are selected through existing recurrent inquiry channels.
+
+Checkpoint format 6 preserves representation/inquiry/cache state beside existing world,
+knowledge, shared weights, recurrent activation, optimizer and capability history. Import
+checks pure typed execution, native receipt provenance and measured support. Formats 1–5
+remain readable. See REPRESENTATION_INVENTION, REPRESENTATION_API and REPRESENTATION_TRAINING.

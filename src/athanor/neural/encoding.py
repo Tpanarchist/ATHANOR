@@ -33,6 +33,10 @@ def activation_view(node: Structure) -> Structure:
         "formed_concept",
         "acquired_structural_rule",
         "structural_task",
+        "executable_representation",
+        "representation_fragment",
+        "representation_concept",
+        "representation_task",
     }:
         audit = {
             "support",
@@ -45,6 +49,8 @@ def activation_view(node: Structure) -> Structure:
             "results",
             "examples",
             "outcomes",
+            "predictions",
+            "attempts",
         }
         return replace(
             node, fields=record({k: v for k, v in node.fields.items() if k not in audit})

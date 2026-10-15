@@ -636,3 +636,44 @@ native compositions. Raw symbolic raster learning does not establish new camera-
 semantics. Supported evidence is scoped; a failed bounded search remains unknown.
 This acceptance establishes operational representation/rule acquisition and reuse within
 those limits, not unrestricted synthesis, autonomous new primitives or general intelligence.
+
+## Goal 008 — representation invention and adaptive abstraction
+
+The continuous session restores the real 0.7 learned checkpoint, constructs native
+interpretations from anonymous collections and raw RGB, transfers acquired fragments and
+relationships across interfaces, retains and tests ambiguity, revises a representation
+for a composed goal, and continues after exact full-state restoration. See
+[REPRESENTATION_VALIDATION](REPRESENTATION_VALIDATION.md) for the requirement/evidence map.
+
+Measured validation on Python 3.14.6:
+
+- Full regression: **232 tests passed**, 2,270.226 seconds.
+- Final Goal 008 contracts: **21 tests passed**, 142.635 seconds, including current
+  record-projection/camera-measurement additions and real-checkpoint continuous acceptance.
+- Installed wheel with no neural dependencies: **113 passed, 121 skipped** of 234 tests.
+- Installed wheel with the existing neural runtime: **20 contracts passed**, plus fresh
+  perceptual transfer, prior numeric 1/4 execution, continuation without examples and a
+  second exact restoration. Athanor imports were asserted to come from the installed wheel.
+- Existing structural/semantic retention cases have identical before/after results.
+  Proposal/semantic scores remain 1.0; structural executable/exact outcome is 19/48 because
+  the set includes unsupported/incompatible cases. This is not 100% execution coverage.
+- Headless commands execute the same Application and produce `[9, 15, 21]` for a fresh
+  symbolic observation, then save it. The viewer captures RGB through the actual encoder,
+  executes an acquired interpretation yielding `[9, 12, 15]`, and saves complete state.
+- Ruff lint and 62-file format checks, strict typing on 49 source files, offline lock
+  validation, wheel/source build and diff-whitespace checks pass. Package version is 0.8.0.
+
+Evidence artifacts:
+
+- `representation-observer.athanor`, `representation-observer.json`, `goal008-acceptance.log`.
+- `goal008-regression.log`, `goal008-final-contracts.log`, `goal008-build.log`.
+- `goal008-wheel-tests.log`, `goal008-installed-continuation.log`,
+  `representation-installed-continued.athanor`.
+- `goal008-retention.json`, `goal008-retention.log`.
+- `goal008-headless-problem.json`, `goal008-headless.json`, `representation-headless.athanor`.
+- `representation-viewer.athanor`, `representation-viewer.jpg`, `goal008-viewer.log`.
+
+Outer checkpoint format 6 preserves earlier formats 1–5. Native imports, namespaces,
+revision pins, exact computation, atomic rollback, evidence and resource limits remain
+in force. No external AI teacher, new representation-specific network, ARC material,
+privileged generator solution or comparative architecture benchmark is used.

@@ -34,6 +34,27 @@ same process through different representations. Acquired processes become consti
 of larger compositions; contradictions qualify dependent knowledge. No new neural
 parameter block is allocated for an acquired process.
 
+Goal 008 (0.8.0) makes executable interpretations first-class native knowledge. Athanor
+constructs relationships, groupings, derived properties and reusable representations;
+the shared recurrent model selects and refines them using observed usefulness. Ambiguous
+interpretations remain separate. New evidence qualifies dependent knowledge, and an
+inadequate active representation can be revised through the existing goal planner.
+Raw RGB observations use existing learned perception without supplied object identities
+or correct groupings. Learned fragments and derived relationships transfer between
+structural and perceptual inputs, compose again, and survive restoration.
+
+```powershell
+.venv\Scripts\python.exe -m athanor.grounded.representation_demo
+.venv\Scripts\python.exe -m athanor.grounded.app --checkpoint artifacts\representation-observer.athanor --paused --port 8766
+```
+
+[Representation architecture](docs/REPRESENTATION_INVENTION.md),
+[interactive and headless API](docs/REPRESENTATION_API.md), and
+[shared learning and persistence](docs/REPRESENTATION_TRAINING.md) describe the contracts.
+The continuous demonstration restores the actual 0.7 learned checkpoint and continues
+after saving/restoring acquired interpretations and neural/optimizer state. Invention
+is bounded by available exact operations and empirical support. ARC remains reserved.
+
 Goal 007 (0.7.0) extends that common machinery to operational concept formation,
 structural variables, multi-example transformation inference and bounded goal planning.
 Anonymous relational observations and raw symbolic rasters can produce unnamed native
